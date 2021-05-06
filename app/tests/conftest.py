@@ -26,3 +26,12 @@ def random_product() -> Dict[str, str]:
         "name": "Test Product",
         "price": 80,
     }
+
+
+def test_user() -> Dict[str, str]:
+    return {
+        "id": 1,
+        "provider": "Google",
+        "email": "test@test.com",
+        "nickname": "test"
+    }
