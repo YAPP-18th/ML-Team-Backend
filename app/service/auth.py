@@ -3,7 +3,8 @@ from typing import Optional
 
 import requests
 from fastapi import HTTPException
-from jose import jwt, JWTError
+from jose import jwt, JWTError, ExpiredSignatureError
+from jose.exceptions import JWTClaimsError
 
 from app.core import settings
 
@@ -30,8 +31,24 @@ def auth_google_token(token: str):
 
 
 def check_access_token_valid(token: str):
-    decode_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-    return decode_token["expires"] >= datetime.utcnow()
+    try:
+        decode_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        return True
+
+    except ExpiredSignatureError:
+        print("time")
+        return False
+    except JWTClaimsError:
+        print("claim")
+        return False
+    except JWTError:
+        print("jwt")
+        return False
+
+
+def get_token_in_header(header: str) -> str:
+    # bearer gkwlfnbnklvjbopw.wegwedvkls.234352ewfdsv
+    return header.split(" ")[1]
 
 
 def check_refresh_token(param):
