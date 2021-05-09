@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta
-from typing import Optional
-
 import requests
-from fastapi import HTTPException
-from jose import jwt, JWTError, ExpiredSignatureError
+from datetime        import datetime, timedelta
+from typing          import Optional
+
+from fastapi         import HTTPException
+from jose            import jwt, JWTError, ExpiredSignatureError
 from jose.exceptions import JWTClaimsError
 
 from app.core import user_settings
