@@ -8,10 +8,7 @@ greenlet==1.0.0
 h11==0.12.0
 idna==2.10
 iniconfig==1.1.1
-<<<<<<< HEAD
 jose==1.0.0
-=======
->>>>>>> 1e939ba... 추가: Study Room
 Mako==1.1.4
 MarkupSafe==1.1.1
 packaging==20.9
