@@ -1,6 +1,6 @@
 import enum
 
 
-class Provider(enum.Enum):
-    GOOGLE = 1
-    FACEBOOK = 2
+class Provider(str, enum.Enum):
+    GOOGLE = 'google'
+    FACEBOOK = 'facebook'
