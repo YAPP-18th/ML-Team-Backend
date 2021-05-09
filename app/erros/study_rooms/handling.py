@@ -1,28 +1,18 @@
-from fastapi            import FastAPI, Request, status, Request
-from fastapi.encoders   import jsonable_encoder
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses  import JSONResponse
+from typing             import Union
+
+from fastapi            import status
+from fastapi.exceptions import HTTPException
+
+from app.schemas        import StudyRoomsCreate, StudyRoomsUpdate
+from app.erros.handling import get_detail
 
 
-app = FastAPI()
-
-class CustomException(Exception):
-    def __init__(self, message: str):
-        self.message = message
-
-
-@app.exception_handler(RequestValidationError)
-def validation_exception_handler(request: Request, exc: RequestValidationError):
-    loc = exc.errors()[0]['loc'][0].upper()
-    item = exc.errors()[0]['loc'][1].upper()
-    return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content=jsonable_encoder({'data': '', 'message': f'ERROR_{item}_IN_{loc}'})
-    )
+def password_exception_handler(room_info: Union[StudyRoomsCreate, StudyRoomsUpdate]):
+    detail = get_detail(param='body', field='password', err='value_error')
+    if (not room_info.is_public) and (not room_info.password):
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=detail)
 
 
-@app.exception_handler(CustomException)
-def NotFoundHandler(request: Request, exc: CustomException):
-    return JSONResponse(status_code = 404, content = {'data': '', 'message': exc.message})
-
+def invalid_uuid_exception_handler():
+    pass
 
