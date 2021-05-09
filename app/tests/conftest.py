@@ -1,24 +1,28 @@
-from typing import Dict, Generator
-
-import pytest
-
 from fastapi.testclient import TestClient
 
 from app.database.session import SessionLocal
-from app.main import app
+from app.database.base    import Base
+from app.api.deps         import get_db
+from app.main             import app
+
+Base.metadata
+
+def overried_get_db():
+    try:
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()
 
 
-@pytest.fixture(scope="session")
-def db() -> Generator:
-    yield SessionLocal()
+def client():
+    with TestClient(app) as client:
+        yield client
 
 
-@pytest.fixture(scope="module")
-def client() -> Generator:
-    with TestClient(app) as c:
-        yield c
+app.dependency_overrides[get_db] = overried_get_db
 
-
+<<<<<<< HEAD
 @pytest.fixture(scope="module")
 def random_product() -> Dict[str, str]:
     return {
@@ -35,3 +39,6 @@ def test_user() -> Dict[str, str]:
         "email": "test@test.com",
         "nickname": "test"
     }
+=======
+client = TestClient(app)
+>>>>>>> 15048eb... 수정: 전체적인 폴더 구조 리팩토링
