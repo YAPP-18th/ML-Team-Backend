@@ -1,7 +1,12 @@
-from sqlalchemy import Column, Integer, Float, Enum, String
+import enum
+from sqlalchemy import Column, Integer, Enum, String
 
 from app.database.base_class import Base
-from app.models.user.provider import Provider
+
+
+class Provider(str, enum.Enum):
+    GOOGLE = 'google'
+    FACEBOOK = 'facebook'
 
 
 class User(Base):
