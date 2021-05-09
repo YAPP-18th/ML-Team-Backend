@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 import requests
+from fastapi import HTTPException
 from jose import jwt, JWTError
 
 from app.core import settings
@@ -19,7 +20,13 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 
 def auth_google_token(token: str):
-    return requests.get("https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=" + token)
+    result = requests.get("https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=" + token)
+
+    if result.status_code == 200:
+        return result.json()["email"]
+
+    else:
+        raise JWTError
 
 
 def check_access_token_valid(token: str):
