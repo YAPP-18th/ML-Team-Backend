@@ -1,5 +1,5 @@
 from uuid     import UUID
-from typing   import Optional, Union
+from typing   import Optional
 
 from pydantic import BaseModel
 
@@ -24,9 +24,10 @@ class StudyRoomsUpdate(BaseModel):
     password: Optional[str]
 
 
-class StudyRoomResponse(BaseModel):
-    data: Union[str, StudyRoomsBase]
+class StudyRoomResponse(StudyRoomsBase):
+    data: Optional[list]
     message: str
+
     class Config:
         orm_mode = True
         schema_extra = {
