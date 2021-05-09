@@ -23,9 +23,4 @@ class StudyRooms(Base):
     current_join_counts  = Column(SmallInteger(), nullable=False, default=0)
     created_at           = Column(DateTime(), default=KOR_NOW)
     owner_id             = Column(Integer(), ForeignKey('users.user_id', ondelete='CASCADE'))
-<<<<<<< HEAD
     owner                = relation('User', back_populates = "study_rooms")
-=======
-
-    owner = relation('User', back_populates = "study_rooms")
->>>>>>> 1e939ba... 추가: Study Room
