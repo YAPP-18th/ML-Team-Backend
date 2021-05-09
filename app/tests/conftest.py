@@ -1,7 +1,4 @@
-import pytest
-
 from typing               import Dict
-
 from fastapi.testclient   import TestClient
 
 from app.database.session import SessionLocal
@@ -19,7 +16,6 @@ def overried_get_db():
     finally:
         db.close()
 
-
 def client():
     with TestClient(app) as client:
         yield client
@@ -27,14 +23,6 @@ def client():
 
 app.dependency_overrides[get_db] = overried_get_db
 
-
-@pytest.fixture(scope="module")
-def random_product() -> Dict[str, str]:
-    return {
-        "id": 1,
-        "name": "Test Product",
-        "price": 80,
-    }
 
 
 def test_user() -> Dict[str, str]:
@@ -44,5 +32,5 @@ def test_user() -> Dict[str, str]:
         "email": "test@test.com",
         "nickname": "test"
     }
-client = TestClient(app)
 
+client = TestClient(app)

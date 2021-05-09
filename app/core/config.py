@@ -9,9 +9,6 @@ class CommonSettings(BaseSettings):
     SECRET_KEY: str = secrets.token_urlsafe(32)
     SQLALCHEMY_DATABASE_URI: str = "postgresql://localhost:5432/studeep"
 
-    class Config:
-        env_file = ".env"
-
 
 class StudyRoomSettings(BaseSettings):
     API_STUDY_ROOM: str = '/study-rooms'
