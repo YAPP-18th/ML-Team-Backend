@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from jose import jwt, JWTError, ExpiredSignatureError
 from jose.exceptions import JWTClaimsError
 
-from app.core import settings
+from app.core import user_settings
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -16,7 +16,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, user_settings.SECRET_KEY, algorithm=user_settings.ALGORITHM)
     return encoded_jwt
 
 
@@ -32,7 +32,7 @@ def auth_google_token(token: str):
 
 def check_access_token_valid(token: str):
     try:
-        decode_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        decode_token = jwt.decode(token, user_settings.SECRET_KEY, algorithms=[user_settings.ALGORITHM])
         return True
 
     except ExpiredSignatureError:

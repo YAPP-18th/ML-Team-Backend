@@ -11,7 +11,7 @@ from app import schemas, crud
 from app.api.deps import get_db
 from app.schemas import UserResponse
 from app.service import auth
-from app.core import settings
+from app.core import user_settings
 from app.service.auth import get_token_in_header
 
 router = APIRouter()
@@ -39,7 +39,7 @@ def sign_in(*, db: Session = Depends(get_db),
 
     user = crud.user.get_one_by_email(db, email)
 
-    token = auth.create_access_token({"sub": email}, timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
+    token = auth.create_access_token({"sub": email}, timedelta(minutes=user_settings.ACCESS_TOKEN_EXPIRE_MINUTES))
 
     if user is None:
         raise HTTPException(status_code=404,
