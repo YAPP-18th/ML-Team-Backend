@@ -1,1 +1,1 @@
-from app.erros.study_rooms.handling import CustomException
+from app.erros.study_rooms.handling import password_exception_handler
