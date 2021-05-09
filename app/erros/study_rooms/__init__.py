@@ -1,0 +1,1 @@
+from app.erros.study_rooms.handling import CustomException
