@@ -27,7 +27,6 @@ def client():
 app.dependency_overrides[get_db] = overried_get_db
 
 
-
 def test_user() -> Dict[str, str]:
     return {
         "id": 1,

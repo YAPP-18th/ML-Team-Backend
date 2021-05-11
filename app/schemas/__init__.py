@@ -3,9 +3,6 @@ from app.schemas.study_rooms import (
                                 StudyRoomsBase,
                                 StudyRoomsCreate,
                                 StudyRoomsUpdate,
-                                StudyRoomResponse,
-                                GetStudyRoomResponse,
-                                GetStudyRoomsResponse,
-                                CreateStudyRoomResponse
+                                StudyRoomResponse
                             )
 
