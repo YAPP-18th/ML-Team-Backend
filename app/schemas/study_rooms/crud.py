@@ -31,3 +31,12 @@ class StudyRoomsUpdate(StudyRoomsBase):
     description: Optional[str]
     is_public: Optional[bool]
     password: Optional[str]
+
+    class Config:
+        schema_extra = {
+            'example': {
+                'description': '매일 매일 캠 스터디 가능하신 분들만!',
+                'is_public': False,
+                'password': 'TestPassword!234'
+            }
+        }    
