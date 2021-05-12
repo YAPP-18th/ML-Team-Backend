@@ -56,9 +56,9 @@ def get_study_room(room_id: str, db: Session = Depends(get_db)):
         detail  = get_detail(param='database', field='study room', message=message, err='database')
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
 
-    except Exception:
+    except Exception as error:
         print(traceback.print_exc())
-        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'server error'})
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': f'server error: {error}'})
         
 
 @router.patch(
@@ -102,9 +102,9 @@ def update_study_room(room_id: str, room_info: StudyRoomsUpdate, db: Session = D
         detail  = get_detail(param='database', field='study room', message=message, err='database')
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
 
-    except Exception:
+    except Exception as error:
         print(traceback.print_exc())
-        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'server error'})
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': f'server error: {error}'})
 
 
 @router.delete(
@@ -138,9 +138,9 @@ def delete_study_room(room_id: str, db: Session = Depends(get_db)):
         detail  = get_detail(param='database', field='study room', message=message, err='database')
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
 
-    except Exception:
+    except Exception as error:
         print(traceback.print_exc())
-        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'server error'})
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': f'server error: {error}'})
 
 
 @router.get(
@@ -174,9 +174,9 @@ def get_study_rooms(skip: int, limit: int, option: str='created_at', db: Session
         detail  = get_detail(param='database', field='user', message=message, err='database')
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
 
-    except Exception:
+    except Exception as error:
         print(traceback.print_exc())
-        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'server error'})
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': f'server error: {error}'})
 
 
 @router.post(
@@ -215,6 +215,6 @@ def create_study_room(rooms: StudyRoomsCreate, db: Session = Depends(get_db)):
         detail  = get_detail(param='database', field='user', message='not found', err='database')
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
 
-    except Exception:
+    except Exception as error:
         print(traceback.print_exc())
-        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'server error'})
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': f'server error: {error}'})
