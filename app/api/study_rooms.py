@@ -1,3 +1,5 @@
+import traceback
+
 from fastapi                 import APIRouter, Depends, status
 from fastapi.responses       import JSONResponse
 from sqlalchemy.orm.session  import Session
@@ -49,12 +51,13 @@ def get_study_room(room_id: str, db: Session = Depends(get_db)):
         data = study_rooms.get(db, room_id)
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
 
-    except NoSuchElementException as error:
-        message = error.message
+    except NoSuchElementException as element_err:
+        message = element_err.message
         detail  = get_detail(param='database', field='study room', message=message, err='database')
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
 
     except Exception:
+        print(traceback.print_exc())
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'server error'})
         
 
@@ -86,20 +89,21 @@ def get_study_room(room_id: str, db: Session = Depends(get_db)):
 )
 def update_study_room(room_id: str, room_info: StudyRoomsUpdate, db: Session = Depends(get_db)):
     try:
-        data = study_rooms.update(db, room_id, room_info)
-        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
+        study_rooms.update(db, room_id, room_info)
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
 
     except InvalidArgumentException as argument_err:
-        message = argument_err
+        message = argument_err.message
         detail  = get_detail(param='body', field='password', message=message, err='value_error')
         return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content={'detail': detail})
 
     except NoSuchElementException as element_err:
-        message = element_err
+        message = element_err.message
         detail  = get_detail(param='database', field='study room', message=message, err='database')
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
 
     except Exception:
+        print(traceback.print_exc())
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'server error'})
 
 
@@ -126,8 +130,8 @@ def update_study_room(room_id: str, room_info: StudyRoomsUpdate, db: Session = D
 )
 def delete_study_room(room_id: str, db: Session = Depends(get_db)):
     try:
-        data = study_rooms.remove(db, room_id)
-        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
+        study_rooms.remove(db, room_id)
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
 
     except NoSuchElementException as element_err:
         message = element_err.message
@@ -135,6 +139,7 @@ def delete_study_room(room_id: str, db: Session = Depends(get_db)):
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
 
     except Exception:
+        print(traceback.print_exc())
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'server error'})
 
 
@@ -170,6 +175,7 @@ def get_study_rooms(skip: int, limit: int, option: str='created_at', db: Session
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
 
     except Exception:
+        print(traceback.print_exc())
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'server error'})
 
 
@@ -196,8 +202,8 @@ def get_study_rooms(skip: int, limit: int, option: str='created_at', db: Session
 )
 def create_study_room(rooms: StudyRoomsCreate, db: Session = Depends(get_db)):
     try:
-        data = study_rooms.create(db, rooms)
-        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
+        study_rooms.create(db, rooms)
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
 
     except InvalidArgumentException as argument_err:
         message = argument_err.message
@@ -210,4 +216,5 @@ def create_study_room(rooms: StudyRoomsCreate, db: Session = Depends(get_db)):
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
 
     except Exception:
+        print(traceback.print_exc())
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'server error'})
