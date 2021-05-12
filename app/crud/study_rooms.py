@@ -96,7 +96,7 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
                 raise NoSuchElementException(message='not found')
 
         except ValueError:
-            raise NoSuchElementException(message='not fund')
+            raise NoSuchElementException(message='not found')
 
 
 study_rooms = CRUDStudyRoom(StudyRooms)
