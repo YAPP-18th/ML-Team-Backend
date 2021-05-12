@@ -8,6 +8,7 @@ from sqlalchemy.exc   import IntegrityError
 from app.crud.base    import CRUDBase
 from app.models       import StudyRooms
 from app.schemas      import StudyRoomsCreate, StudyRoomsUpdate
+from app.erros        import NoSuchElementException, InvalidArgumentException
 
 
 def check_password_exist(room_info: Union[StudyRoomsCreate, StudyRoomsUpdate]):
@@ -17,7 +18,7 @@ def check_password_exist(room_info: Union[StudyRoomsCreate, StudyRoomsUpdate]):
 class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
     def get(self, db: Session, room_id: UUID):
         try:
-            study_room = db.query(self.model).filter(
+            data = db.query(self.model).filter(
                 self.model.id == UUID(room_id)
             ).with_entities(
                 self.model.id,
@@ -28,21 +29,23 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
                 self.model.created_at,
                 self.model.owner_id
             ).first()
-            if study_room:
-                return 'SUCCESS', jsonable_encoder(study_room)
+            if data:
+                return ''
             else:
-                return 'NOT_FOUND_ROOM', None
+                raise NoSuchElementException(message='not found')
+
         except ValueError:
-            return 'NOT_FOUND_ROOM', None
+            raise NoSuchElementException(message='not found')
+
         except Exception as error:
             print(error)
             print(error.__class__.__name__)
-            return 'UNCAUGHT', None
+            raise Exception
 
 
     def get_multi(self, db: Session, skip: int, limit: int, option: str):
         try:
-            study_rooms = db.query(self.model).filter(
+            data = db.query(self.model).filter(
                     self.model.current_join_counts < 5
                 ).with_entities(
                     self.model.id,
@@ -53,64 +56,73 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
                     self.model.created_at,
                     self.model.owner_id
                 ).order_by(f'{option}').offset(skip).limit(limit).all()
-            if study_rooms:
-                return 'SUCCESS', jsonable_encoder(study_rooms)
+            if data:
+                return jsonable_encoder(data)
             else:
-                return 'NOT_FOUND_ROOM', None
+                raise NoSuchElementException(message='not found')
+                
         except Exception as error:
             print(error)
             print(error.__class__.__name__)
-            return 'UNCAUGHT', None
+            raise Exception
 
 
     def create(self, db: Session, room_info: StudyRoomsCreate):
         try:
             if not check_password_exist(room_info):
-                return 'PASSWORD', None
+                raise InvalidArgumentException(message='filed required')
+
             room_info.current_join_counts += 1
-            response = self.model(**jsonable_encoder(room_info))
-            db.add(response)
+            data = self.model(**jsonable_encoder(room_info))
+            db.add(data)
             db.commit()
-            return 'SUCCESS', None
+            return ''
+
         except IntegrityError:
-            return 'NOT_FOUND_USER', None
+            raise NoSuchElementException(message='not found')
+
         except Exception as error:
             print(error)
             print(error.__class__.__name__)
-            return 'UNCAUGHT', None
+            raise Exception
     
 
     def update(self, db: Session, room_id: str, room_info: StudyRoomsUpdate):
         try:
             if not check_password_exist(room_info):
-                return 'PASSWORD', None
+                raise InvalidArgumentException(message='filed required')
+                
             update_data = room_info.dict(exclude_none=True)
-            study_room  = db.query(self.model).filter(self.model.id == UUID(room_id)).update(update_data)
+            db.query(self.model).filter(self.model.id == UUID(room_id)).update(update_data)
             db.commit()
-            return 'SUCCESS', study_room
+            return ''
+
         except ValueError:
-            return 'NOT_FOUND_ROOM', None
+            raise NoSuchElementException(message='not found')
+
         except Exception as error:
             print(error)
             print(error.__class__.__name__)
-            return 'UNCAUGHT', None
+            raise Exception
 
 
     def remove(self, db: Session, room_id: str):
         try:
-            study_room = db.query(self.model).filter(self.model.id == UUID(room_id)).first()
-            if study_room:
-                db.delete(study_room)
+            data = db.query(self.model).filter(self.model.id == UUID(room_id)).first()
+            if data:
+                db.delete(data)
                 db.commit()
-                return 'SUCCESS', None
+                return ''
             else:
-                return 'NOT_FOUND_ROOM', None
+                raise NoSuchElementException(message='not found')
+
         except ValueError:
-            return 'NOT_FOUND_ROOM', None
+            raise NoSuchElementException(message='not fund')
+
         except Exception as error:
             print(error)
             print(error.__class__.__name__)
-            return 'UNCAUGHT', None
+            raise Exception
 
 
 study_rooms = CRUDStudyRoom(StudyRooms)

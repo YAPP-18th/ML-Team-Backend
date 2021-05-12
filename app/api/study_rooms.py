@@ -1,5 +1,4 @@
 from fastapi                 import APIRouter, Depends, status
-from fastapi.param_functions import Query
 from fastapi.responses       import JSONResponse
 from sqlalchemy.orm.session  import Session
 
@@ -19,9 +18,9 @@ from app.schemas             import (
                                 MethodNotAllowedHandling
                                 )                                
 from app.erros               import (
-                                password_exception_handler,
-                                not_found_exception_handler,
-                                uncaught_exception_handler
+                                get_detail,
+                                NoSuchElementException,
+                                InvalidArgumentException
                                 )
 
 
@@ -46,13 +45,17 @@ router = APIRouter()
     }
 )
 def get_study_room(room_id: str, db: Session = Depends(get_db)):
-    response, data = study_rooms.get(db, room_id)
-    if response == 'SUCCESS':
+    try:
+        data = study_rooms.get(db, room_id)
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
-    elif response == 'NOT_FOUND_ROOM':
-        not_found_exception_handler(param='database', field='study room', message='not found', err='database')
-    elif response == 'UNCAUGHT':
-        uncaught_exception_handler()
+
+    except NoSuchElementException as error:
+        message = error.message
+        detail  = get_detail(param='database', field='study room', message=message, err='database')
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
+
+    except Exception:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'server error'})
         
 
 @router.patch(
@@ -82,15 +85,22 @@ def get_study_room(room_id: str, db: Session = Depends(get_db)):
 
 )
 def update_study_room(room_id: str, room_info: StudyRoomsUpdate, db: Session = Depends(get_db)):
-    response, _ = study_rooms.update(db, room_id, room_info)
-    if response == 'SUCCESS':
-        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
-    elif response == 'NOT_FOUN_ROOM':
-        not_found_exception_handler(param='database', field='study room', message='not found', err='database')
-    elif response == 'PASSWORD':
-        password_exception_handler()
-    elif response == 'UNCAUGHT':
-        uncaught_exception_handler()
+    try:
+        data = study_rooms.update(db, room_id, room_info)
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
+
+    except InvalidArgumentException as argument_err:
+        message = argument_err
+        detail  = get_detail(param='body', field='password', message=message, err='value_error')
+        return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content={'detail': detail})
+
+    except NoSuchElementException as element_err:
+        message = element_err
+        detail  = get_detail(param='database', field='study room', message=message, err='database')
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
+
+    except Exception:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'server error'})
 
 
 @router.delete(
@@ -115,14 +125,18 @@ def update_study_room(room_id: str, room_info: StudyRoomsUpdate, db: Session = D
     }
 )
 def delete_study_room(room_id: str, db: Session = Depends(get_db)):
-    response, _ = study_rooms.remove(db, room_id)
-    if response == 'SUCCESS':
-        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
-    elif response == 'NOT_FOUND_ROOM':
-        not_found_exception_handler(param='database', field='study room', message='not found', err='database')
-    elif response == 'UNCAUGHT':
-        uncaught_exception_handler()
-    
+    try:
+        data = study_rooms.remove(db, room_id)
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
+
+    except NoSuchElementException as element_err:
+        message = element_err.message
+        detail  = get_detail(param='database', field='study room', message=message, err='database')
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
+
+    except Exception:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'server error'})
+
 
 @router.get(
     '',
@@ -146,13 +160,17 @@ def delete_study_room(room_id: str, db: Session = Depends(get_db)):
     }
 )
 def get_study_rooms(skip: int, limit: int, option: str='created_at', db: Session = Depends(get_db)):
-    response, data = study_rooms.get_multi(db, skip, limit, option)
-    if response == 'SUCCESS':
+    try:
+        data = study_rooms.get_multi(db, skip, limit, option)
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
-    elif response == 'NOT_FOUND_ROOM':
-        not_found_exception_handler(param='database', field='study room', message='not found', err='database')
-    elif response == 'UNCAUGHT':
-        uncaught_exception_handler()
+
+    except NoSuchElementException as element_err:
+        message = element_err.message
+        detail  = get_detail(param='database', field='user', message=message, err='database')
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
+
+    except Exception:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'server error'})
 
 
 @router.post(
@@ -177,12 +195,19 @@ def get_study_rooms(skip: int, limit: int, option: str='created_at', db: Session
     }
 )
 def create_study_room(rooms: StudyRoomsCreate, db: Session = Depends(get_db)):
-    response, _ = study_rooms.create(db, rooms)
-    if response == 'SUCCESS':
-        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
-    elif response == 'NOT_FOUND_USER':
-        not_found_exception_handler(param='database', field='user', message='not found', err='database')
-    elif response == 'PASSWORD':
-        password_exception_handler()
-    elif response == 'UNCAUGHT':
-        uncaught_exception_handler()
+    try:
+        data = study_rooms.create(db, rooms)
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
+
+    except InvalidArgumentException as argument_err:
+        message = argument_err.message
+        detail  = get_detail(param='body', field='password', message=message, err='value_error')
+        return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content={'detail': detail})        
+
+    except NoSuchElementException as element_err:
+        message = element_err.message
+        detail  = get_detail(param='database', field='user', message='not found', err='database')
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
+
+    except Exception:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': 'server error'})
