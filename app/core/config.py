@@ -13,10 +13,6 @@ class CommonSettings(BaseSettings):
         env_file = ".env"
 
 
-class StudyRoomSettings(BaseSettings):
-    API_STUDY_ROOM: str = '/study-rooms'
-
-
 class UserSettings(BaseSettings):
     API_USER: str = '/user'
     SECRET_KEY: str = secrets.token_urlsafe(32)
@@ -24,6 +20,10 @@ class UserSettings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
-common_settings = CommonSettings()
+class StudyRoomSettings(BaseSettings):
+    API_STUDY_ROOM: str = '/study-rooms'
+
+
+common_settings      = CommonSettings()
+user_settings        = UserSettings()
 study_rooms_settings = StudyRoomSettings()
-user_settings = UserSettings()
