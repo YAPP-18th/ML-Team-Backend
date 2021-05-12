@@ -55,7 +55,7 @@ def sign_in(*, db: Session = Depends(get_db),
 
 
 @router.get("/user/{user_id}", response_model=UserResponse)
-def get_user(*, db: Session, user_id: int):
+def get_user(user_id: int, db: Session = Depends(get_db)):
     user = crud.user.get(db, user_id)
     if user is not None:
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': user})
