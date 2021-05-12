@@ -12,6 +12,15 @@ def get_detail(param: str, field: str, message: str, err: str):
     return detail
 
 
+class InternalException(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+    def __str__(self):
+        return self.message   
+
+
 class NoSuchElementException(Exception):
     def __init__(self, message):
         self.message = message
