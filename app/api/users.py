@@ -6,6 +6,8 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Response
 from fastapi.logger import logger
 from jose import JWTError
 from sqlalchemy.orm import Session
+from starlette import status
+from starlette.responses import JSONResponse
 
 from app import schemas, crud
 from app.api.deps import get_db
@@ -50,3 +52,13 @@ def sign_in(*, db: Session = Depends(get_db),
     response.headers["Authorization"] = 'bearer ' + token
 
     return user
+
+
+@router.get("/user/{user_id}", response_model=UserResponse)
+def get_user(*, db: Session, user_id: int):
+    user = crud.user.get(db, user_id)
+    if user is not None:
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': user})
+
+    else:
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': 'not found'})
