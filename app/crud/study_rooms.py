@@ -59,7 +59,7 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
     def create(self, db: Session, room_info: StudyRoomsCreate):
         try:
             if not check_password_exist(room_info):
-                raise InvalidArgumentException(message='filed required')
+                raise InvalidArgumentException(message='field required')
 
             room_info.current_join_counts += 1
             data = self.model(**jsonable_encoder(room_info))
@@ -73,7 +73,7 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
     def update(self, db: Session, room_id: str, room_info: StudyRoomsUpdate):
         try:
             if not check_password_exist(room_info):
-                raise InvalidArgumentException(message='filed required')
+                raise InvalidArgumentException(message='field required')
                 
             update_data = room_info.dict(exclude_none=True)
             data = db.query(self.model).filter(self.model.id == UUID(room_id)).update(update_data)
