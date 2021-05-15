@@ -9,6 +9,12 @@ from jose.exceptions import JWTClaimsError
 from app.core import user_settings
 
 
+def parsing_token_decorator(func):
+    def wrapper(token: str):
+        return func(token.split(" ")[1])
+    return wrapper
+
+
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
@@ -20,6 +26,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
+@parsing_token_decorator
 def auth_google_token(token: str):
     result = requests.get("https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=" + token)
 
@@ -30,6 +37,7 @@ def auth_google_token(token: str):
         raise JWTError
 
 
+@parsing_token_decorator
 def check_access_token_valid(token: str):
     try:
         decode_token = jwt.decode(token, user_settings.SECRET_KEY, algorithms=[user_settings.ALGORITHM])
