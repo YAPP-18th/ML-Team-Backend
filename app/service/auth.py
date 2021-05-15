@@ -1,3 +1,5 @@
+import logging
+
 import requests
 from datetime        import datetime, timedelta
 from typing          import Optional
@@ -41,22 +43,17 @@ def auth_google_token(token: str):
 def check_access_token_valid(token: str):
     try:
         decode_token = jwt.decode(token, user_settings.SECRET_KEY, algorithms=[user_settings.ALGORITHM])
-        return True
-
-    except ExpiredSignatureError:
-        print("time")
-        return False
+        return decode_token["sub"]
+    except ExpiredSignatureError as err:
+        logging.info("Token has expired")
+        # todo: Refresh Token Check
+        raise JWTError()
     except JWTClaimsError:
-        print("claim")
-        return False
+        logging.info("token has any claims")
+        raise JWTError()
     except JWTError:
-        print("jwt")
-        return False
-
-
-def get_token_in_header(header: str) -> str:
-    # bearer gkwlfnbnklvjbopw.wegwedvkls.234352ewfdsv
-    return header.split(" ")[1]
+        logging.info("Invalid Signature token")
+        raise JWTError()
 
 
 def check_refresh_token(param):
