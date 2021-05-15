@@ -9,10 +9,28 @@ class NotFoundUserHandling(ErrorResponseBase):
                     {
                         "loc": [
                             "database",
-                            "study room"
+                            "user"
                         ],
                         "msg": "not found",
                         "type": "database.missing"
+                    }
+                ]
+            }
+        }
+
+
+class UnauthorizedHandler(ErrorResponseBase):
+    class Config:
+        schema_extra = {
+            'example': {
+                "detail": [
+                    {
+                        "loc": [
+                            "token",
+                            "user"
+                        ],
+                        "msg": "Unauthorized",
+                        "type": "Token Unauthorized"
                     }
                 ]
             }
