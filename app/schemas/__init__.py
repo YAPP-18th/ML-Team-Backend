@@ -6,6 +6,7 @@ from app.schemas.responses   import (
 from app.schemas.users       import (
                                 NotFoundUserHandling,
                                 UnauthorizedHandler,
+                                ForbiddenHandler,
                                 UserBase,
                                 UserCreate,
                                 UserUpdate,
