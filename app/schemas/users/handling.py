@@ -35,3 +35,21 @@ class UnauthorizedHandler(ErrorResponseBase):
                 ]
             }
         }
+
+
+class ForbiddenHandler(ErrorResponseBase):
+    class Config:
+        schema_extra = {
+            'example': {
+                "detail": [
+                    {
+                        "loc": [
+                            "token",
+                            "user"
+                        ],
+                        "msg": "Forbidden",
+                        "type": "Forbidden Token"
+                    }
+                ]
+            }
+        }
