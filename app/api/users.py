@@ -4,17 +4,24 @@ from datetime import timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Header, Response
+from fastapi.encoders import jsonable_encoder
 from jose import JWTError
 from sqlalchemy.orm import Session
 from starlette import status
 from starlette.responses import JSONResponse
 
-from app import schemas, crud
-from app.api.deps import get_db
+from app            import schemas, crud
+from app.api.deps   import get_db
 from app.errors      import get_detail, NoSuchElementException
-from app.schemas import SuccessResponseBase, ErrorResponseBase, NotFoundUserHandling, UnauthorizedHandler
-from app.service import auth
-from app.core import user_settings
+from app.schemas    import (
+                            SuccessResponseBase,
+                            ErrorResponseBase,
+                            NotFoundUserHandling,
+                            UnauthorizedHandler,
+                            ForbiddenHandler
+                            )
+from app.service    import auth
+from app.core       import user_settings
 
 router = APIRouter()
 
@@ -30,22 +37,35 @@ router = APIRouter()
             "model": UnauthorizedHandler,
             "description": "JWT 토큰 인증에 실패하였을 경우"
         },
+        403: {
+            "model": ForbiddenHandler,
+            "description": "올바른 유형의 토큰이 아닌 경우(on-board / access)"
+        },
         500: {
             "model": ErrorResponseBase,
             "description": "Generic Error"
         }
     }
 )
-def sign_up(*, db: Session = Depends(get_db), user_in: schemas.UserCreate, authorization: Optional[str] = Header(None)):
+def sign_up(*, db: Session = Depends(get_db),
+            user_in: schemas.UserCreate,
+            authorization: Optional[str] = Header(None)):
     try:
-        email = auth.check_access_token_valid(authorization)
+        email = auth.check_access_token_valid(authorization, on_board=True)
         user_in.social_id = email
         user = crud.user.create(db, obj_in=user_in)
-        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': user})
+        token = auth.create_access_token({"sub": email}, timedelta(minutes=user_settings.ACCESS_TOKEN_EXPIRE_MINUTES))
+        return JSONResponse(status_code=status.HTTP_200_OK,
+                            content={'data': jsonable_encoder(user)},
+                            headers={'Authorization' : 'bearer ' + token})
     except JWTError:
         message = traceback.format_exc()
         detail  = get_detail(param='token', field='authorize', message=message, err='invalid token')
         return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={'detail': detail})
+    except NameError:
+        message = traceback.format_exc()
+        detail = get_detail(param='token', field='forbidden', message=message, err='This token is not on-boarding token')
+        return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={'detail': detail})
     except Exception as error:
         logging.error(traceback.format_exc())
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -87,6 +107,8 @@ def sign_in(*, db: Session = Depends(get_db),
         token = auth.create_access_token({"sub": email}, timedelta(minutes=user_settings.ACCESS_TOKEN_EXPIRE_MINUTES))
 
         if user is None:
+            token = auth.create_access_token({"on_board": email},
+                                             timedelta(minutes=user_settings.ACCESS_TOKEN_EXPIRE_MINUTES))
             return JSONResponse(status_code=status.HTTP_404_NOT_FOUND,
                                 content={'detail': "user(email: " + email + ") not exist."},
                                 headers={"Authorization": 'bearer ' + token}
@@ -94,7 +116,7 @@ def sign_in(*, db: Session = Depends(get_db),
 
         response.headers["Authorization"] = 'bearer ' + token
 
-        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': user})
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': jsonable_encoder(user)})
     except JWTError:
         message = traceback.format_exc()
         detail = get_detail(param='token', field='authorize', message=message, err='invalid Google token')
