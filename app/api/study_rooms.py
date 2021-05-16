@@ -19,7 +19,7 @@ from app.schemas             import (
                                 QueryNeedyStudyRoomHandling,
                                 MethodNotAllowedHandling
                                 )                                
-from app.erros               import (
+from app.errors               import (
                                 get_detail,
                                 NoSuchElementException,
                                 InvalidArgumentException

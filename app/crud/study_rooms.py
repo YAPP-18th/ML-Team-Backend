@@ -8,7 +8,7 @@ from sqlalchemy.exc   import IntegrityError
 from app.crud.base    import CRUDBase
 from app.models       import StudyRooms
 from app.schemas      import StudyRoomsCreate, StudyRoomsUpdate
-from app.erros        import NoSuchElementException, InvalidArgumentException
+from app.errors        import NoSuchElementException, InvalidArgumentException
 
 
 def check_password_exist(room_info: Union[StudyRoomsCreate, StudyRoomsUpdate]):

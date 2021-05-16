@@ -1,4 +1,4 @@
-from app.erros.customs     import (
+from app.errors.customs     import (
                             get_detail,
                             InternalException,
                             NoSuchElementException,
