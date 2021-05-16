@@ -1,19 +1,20 @@
 import logging
 
 import requests
-from datetime        import datetime, timedelta
-from typing          import Optional
+from datetime import datetime, timedelta
+from typing import Optional
 
-from fastapi         import HTTPException
-from jose            import jwt, JWTError, ExpiredSignatureError
+from fastapi import HTTPException
+from jose import jwt, JWTError, ExpiredSignatureError
 from jose.exceptions import JWTClaimsError
 
 from app.core import user_settings
 
 
 def parsing_token_decorator(func):
-    def wrapper(token: str):
-        return func(token.split(" ")[1])
+    def wrapper(token: str, **kwargs):
+        return func(token.split(" ")[1], **kwargs)
+
     return wrapper
 
 
@@ -40,9 +41,11 @@ def auth_google_token(token: str):
 
 
 @parsing_token_decorator
-def check_access_token_valid(token: str):
+def check_access_token_valid(token: str, on_board=False):
     try:
         decode_token = jwt.decode(token, user_settings.SECRET_KEY, algorithms=[user_settings.ALGORITHM])
+        if on_board:
+            return decode_token["on_board"]
         return decode_token["sub"]
     except ExpiredSignatureError as err:
         logging.info("Token has expired")
