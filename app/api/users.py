@@ -11,7 +11,7 @@ from starlette.responses import JSONResponse
 
 from app import schemas, crud
 from app.api.deps import get_db
-from app.erros import get_detail, NoSuchElementException
+from app.errors      import get_detail, NoSuchElementException
 from app.schemas import SuccessResponseBase, ErrorResponseBase, NotFoundUserHandling, UnauthorizedHandler
 from app.service import auth
 from app.core import user_settings
