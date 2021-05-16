@@ -18,6 +18,16 @@ def parsing_token_decorator(func):
     return wrapper
 
 
+def auth_decorator(token):
+    def inner_decorator(fun):
+        def wrapper(*args, **kwargs):
+            check_access_token_valid(token)
+            fun(*args, **kwargs)
+
+        return wrapper
+    return inner_decorator
+
+
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
