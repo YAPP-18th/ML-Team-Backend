@@ -30,7 +30,7 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
                 self.model.owner_id
             ).first()
             if data:
-                return data
+                return jsonable_encoder(data)
             else:
                 raise NoSuchElementException(message='not found')
 
