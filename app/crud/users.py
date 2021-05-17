@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.crud.base import CRUDBase
 from app.models import User
-from app.schemas.users import UserCreate, UserUpdate
+from app.schemas import UserCreate, UserUpdate
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -13,4 +13,4 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return db.query(User).filter(User.social_id == email).first()
 
 
-user = CRUDUser(User)
+users = CRUDUser(User)
