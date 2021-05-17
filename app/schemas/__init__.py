@@ -7,10 +7,10 @@ from app.schemas.users       import (
                                 NotFoundUserHandling,
                                 UnauthorizedHandler,
                                 ForbiddenHandler,
+                                UserDataResponse,
                                 UserBase,
                                 UserCreate,
-                                UserUpdate,
-                                UserResponse
+                                UserUpdate
                                 )
 from app.schemas.study_rooms import (
                                 StudyRoomsCreate,
