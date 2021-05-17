@@ -7,8 +7,8 @@ from fastapi import APIRouter, Depends, Header, Response
 from fastapi.encoders import jsonable_encoder
 from jose import JWTError
 from sqlalchemy.orm import Session
-from starlette import status
-from starlette.responses import JSONResponse
+from fastapi import status
+from fastapi.responses import JSONResponse
 
 from app            import schemas, crud
 from app.api.deps   import get_db
