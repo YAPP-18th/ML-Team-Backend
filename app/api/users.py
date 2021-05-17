@@ -16,6 +16,7 @@ from app.errors      import get_detail, NoSuchElementException
 from app.schemas    import (
                             SuccessResponseBase,
                             ErrorResponseBase,
+                            UserDataResponse,
                             NotFoundUserHandling,
                             UnauthorizedHandler,
                             ForbiddenHandler
@@ -30,7 +31,7 @@ router = APIRouter()
     "/signup",
     responses = {
         200: {
-            "model": SuccessResponseBase,
+            "model": UserDataResponse,
             "description": "회원가입 성공"
         },
         401: {
@@ -78,7 +79,7 @@ def sign_up(*, db: Session = Depends(get_db),
     "/signin",
     responses = {
         200: {
-            "model": SuccessResponseBase,
+            "model": UserDataResponse,
             "description": "로그인 성공"
         },
         401: {
@@ -133,7 +134,7 @@ def sign_in(*, db: Session = Depends(get_db),
     "/get",
     responses = {
         200: {
-            "model": SuccessResponseBase,
+            "model": UserDataResponse,
             "description": "정상 Response"
         },
         401: {
