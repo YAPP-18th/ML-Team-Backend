@@ -1,14 +1,17 @@
 import logging
+import traceback
 
 import requests
 from datetime import datetime, timedelta
 from typing import Optional
 
-from fastapi import HTTPException
+from fastapi import status, Header
+from fastapi.responses import JSONResponse
 from jose import jwt, JWTError, ExpiredSignatureError
 from jose.exceptions import JWTClaimsError
 
 from app.core import user_settings
+from app.errors import get_detail
 
 
 def parsing_token_decorator(func):
@@ -18,14 +21,14 @@ def parsing_token_decorator(func):
     return wrapper
 
 
-def auth_decorator(token):
-    def inner_decorator(fun):
-        def wrapper(*args, **kwargs):
-            check_access_token_valid(token)
-            fun(*args, **kwargs)
-
-        return wrapper
-    return inner_decorator
+# DI
+def auth_token(authorization: Optional[str] = Header(None)):
+    try:
+        check_access_token_valid(authorization)
+    except JWTError:
+        message = traceback.format_exc()
+        detail = get_detail(param='token', field='authorize', message=message, err='invalid Google token')
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={'detail': detail})
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
