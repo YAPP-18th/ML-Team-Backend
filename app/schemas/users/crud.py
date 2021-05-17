@@ -25,13 +25,13 @@ class UserCreate(UserBase):
                 'provider': 'google',
                 'nickname': 'Studeep_User',
                 'goal': {
-                    '월': 2,
-                    '화': 2,
-                    '수': 2,
-                    '목': 2,
-                    '금': 2,
-                    '토': 2,
-                    '일': 2
+                    'MON': 2,
+                    'TUE': 2,
+                    'WED': 2,
+                    'THU': 2,
+                    'FRI': 2,
+                    'SAT': 2,
+                    'SUN': 2
                 }
             }
         }
@@ -49,13 +49,13 @@ class UserUpdate(UserBase):
                 'social_id': 'example@gmail.com',
                 'nickname': 'new Nickname',
                 'goal': {
-                    '월': 2,
-                    '화': 2,
-                    '수': 2,
-                    '목': 2,
-                    '금': 2,
-                    '토': 2,
-                    '일': 2
+                    'MON': 2,
+                    'TUE': 2,
+                    'WED': 2,
+                    'THU': 2,
+                    'FRI': 2,
+                    'SAT': 2,
+                    'SUN': 2
                 }
             }
         }
