@@ -14,4 +14,4 @@ api_router.include_router(
     study_rooms.router,
     prefix=study_rooms_settings.API_STUDY_ROOM,
     tags=['study_rooms']
-)
+) 

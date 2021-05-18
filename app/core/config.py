@@ -1,4 +1,5 @@
 import secrets
+from uuid import NAMESPACE_URL
 
 from pydantic import BaseSettings
 
@@ -24,6 +25,11 @@ class StudyRoomSettings(BaseSettings):
     API_STUDY_ROOM: str = '/study-rooms'
 
 
+class SocketSettings(BaseSettings):
+    NAMESPACE_URL: str = '/study'
+
+
 common_settings      = CommonSettings()
 user_settings        = UserSettings()
 study_rooms_settings = StudyRoomSettings()
+socket_settinngs     = SocketSettings()

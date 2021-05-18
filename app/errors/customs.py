@@ -13,7 +13,7 @@ def get_detail(param: str, field: str, message: str, err: str):
 
 
 class InternalException(Exception):
-    def __init__(self, message):
+    def __init__(self, message: str):
         self.message = message
 
 
@@ -22,7 +22,7 @@ class InternalException(Exception):
 
 
 class NoSuchElementException(Exception):
-    def __init__(self, message):
+    def __init__(self, message: str):
         self.message = message
 
 
@@ -31,18 +31,27 @@ class NoSuchElementException(Exception):
 
 
 class InvalidArgumentException(Exception):
-    def __init__(self, message):
+    def __init__(self, message: str):
         self.message = message
 
 
     def __str__(self):
+        return self.message 
+
+
+class RequestConflictException(Exception):
+    def __init__(self, message: str):
+        self.message = message
+
+    
+    def __str__(self):
         return self.message
 
 
-    def get_response(self):
-        return create_detail(
-            param   = self.param,
-            field   = self.field,
-            message = self.message,
-            error   = self.error
-        )        
+class ForbiddenException(Exception):
+    def __init__(self, message: str):
+        self.message = message
+
+    
+    def __str__(self):
+        return self.message

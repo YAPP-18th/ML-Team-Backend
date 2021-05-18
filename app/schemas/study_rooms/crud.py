@@ -1,16 +1,15 @@
-from typing                import Optional
-
-from pydantic              import BaseModel
+from typing   import Optional
+from pydantic import BaseModel
 
 
 class StudyRoomsBase(BaseModel):
-    title: str
-    description: str
-    is_public: bool
     password: Optional[str]
 
 
 class StudyRoomsCreate(StudyRoomsBase):
+    title: str
+    description: str
+    is_public: bool
     current_join_counts: int = 0
     owner_id: int
 
@@ -30,7 +29,6 @@ class StudyRoomsUpdate(StudyRoomsBase):
     title: Optional[str]
     description: Optional[str]
     is_public: Optional[bool]
-    password: Optional[str]
 
     class Config:
         schema_extra = {
@@ -39,4 +37,14 @@ class StudyRoomsUpdate(StudyRoomsBase):
                 'is_public': False,
                 'password': 'TestPassword!234'
             }
-        }    
+        } 
+
+
+class StudyRoomJoin(StudyRoomsBase):
+
+    class Config:
+        schema_extra = {
+            'example': {
+                'password': 'TestPassword!234'
+            }
+        } 
