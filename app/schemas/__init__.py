@@ -15,10 +15,13 @@ from app.schemas.users       import (
 from app.schemas.study_rooms import (
                                 StudyRoomsCreate,
                                 StudyRoomsUpdate,
+                                StudyRoomJoin,
                                 GetStudyRoomResponse,
                                 GetStudyRoomsResponse,
                                 NotFoundStudyRoomHandling,
                                 PasswordNeedyStudyRoomHandling,
                                 BodyNeedyStudyRoomHandling,
-                                QueryNeedyStudyRoomHandling
+                                QueryNeedyStudyRoomHandling,
+                                NoEmptyRoomHandling,
+                                ForbiddenUserHandling
                                 )

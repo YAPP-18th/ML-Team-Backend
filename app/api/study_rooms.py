@@ -1,6 +1,10 @@
 import traceback
 
-from fastapi                 import APIRouter, Depends, status
+from fastapi                 import (
+                                APIRouter,
+                                Depends,
+                                status
+                                )
 from fastapi.responses       import JSONResponse
 from sqlalchemy.orm.session  import Session
 
@@ -11,18 +15,23 @@ from app.schemas             import (
                                 ErrorResponseBase,
                                 StudyRoomsCreate,
                                 StudyRoomsUpdate,
+                                StudyRoomJoin,
                                 GetStudyRoomResponse,
                                 GetStudyRoomsResponse,
                                 NotFoundStudyRoomHandling,
                                 PasswordNeedyStudyRoomHandling,
                                 BodyNeedyStudyRoomHandling,
                                 QueryNeedyStudyRoomHandling,
-                                MethodNotAllowedHandling
+                                MethodNotAllowedHandling,
+                                NoEmptyRoomHandling,
+                                ForbiddenUserHandling
                                 )                                
-from app.errors               import (
+from app.errors              import (
                                 get_detail,
                                 NoSuchElementException,
-                                InvalidArgumentException
+                                InvalidArgumentException,
+                                RequestConflictException,
+                                ForbiddenException
                                 )
 
 
@@ -48,6 +57,7 @@ router = APIRouter()
 )
 def get_study_room(room_id: str, db: Session = Depends(get_db)):
     try:
+        print(db)
         data = study_rooms.get(db, room_id)
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
 
@@ -59,6 +69,9 @@ def get_study_room(room_id: str, db: Session = Depends(get_db)):
     except Exception as error:
         print(traceback.print_exc())
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': f'server error: {error}'})
+    
+    finally:
+        db.close()
         
 
 @router.patch(
@@ -104,7 +117,7 @@ def update_study_room(room_id: str, room_info: StudyRoomsUpdate, db: Session = D
 
     except Exception as error:
         print(traceback.print_exc())
-        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': f'server error: {error}'})
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': f'server error: {detail}'})
 
 
 @router.delete(
@@ -200,9 +213,9 @@ def get_study_rooms(skip: int, limit: int, option: str='created_at', db: Session
         }
     }
 )
-def create_study_room(rooms: StudyRoomsCreate, db: Session = Depends(get_db)):
+def create_study_room(room_info: StudyRoomsCreate, db: Session = Depends(get_db)):
     try:
-        study_rooms.create(db, rooms)
+        study_rooms.create(db, room_info)
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
 
     except InvalidArgumentException as argument_err:
@@ -214,6 +227,67 @@ def create_study_room(rooms: StudyRoomsCreate, db: Session = Depends(get_db)):
         message = element_err.message
         detail  = get_detail(param='database', field='user', message='not found', err='database')
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
+
+    except Exception as error:
+        print(traceback.print_exc())
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': f'server error: {error}'})
+
+
+@router.post(
+    '/{room_id}/join',
+    responses = {
+        200: {
+            "model": SuccessResponseBase,
+            "description": "스터디룸 생성 성공"
+        },
+        403: {
+            "model": ForbiddenUserHandling,
+            "description": "비공개 방의 비밀번호 오입력 한 경우"
+        },
+        404: {
+            "model": NotFoundStudyRoomHandling,
+            "description": "존재하지 않으려는 방에 접근하려는 경우"
+        },
+        409: {
+            "model": NoEmptyRoomHandling,
+            "description": "이미 스터디룸의 참가 인원 수가 5명인 경우"
+        },
+        422: {
+            "model": PasswordNeedyStudyRoomHandling,
+            "description": "비공개 스터디룸일 때 비밀번호를 입력하지 않은 경우 \
+                만약 공개된 스터디룸인데 비밀번호와 넘어올 경우 `msg` 부분에 `field not required` 반환"
+        },
+        500: {
+            "model": ErrorResponseBase,
+            "description": "서버에서 잡지 못한 에러"
+        }
+    }
+)
+def join_study_room(room_id: str, room_info: StudyRoomJoin, db: Session = Depends(get_db)):
+    try:
+        print(room_id)
+        study_rooms.join(db, room_id, room_info)
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
+
+    except ForbiddenException as forbidden_err:
+        message = forbidden_err.message
+        detail  = get_detail(param='body', field='password', message=message, err='invalid')
+        return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={'detail': detail})
+
+    except NoSuchElementException as element_err:
+        message = element_err.message
+        detail  = get_detail(param='database', field='study room', message=message, err='database')
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
+
+    except RequestConflictException as conflict_err:
+        message = conflict_err.message
+        detail  = get_detail(param='database', field='study room', message=message, err='database')
+        return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={'detail': detail})
+
+    except InvalidArgumentException as argument_err:
+        message = argument_err.message
+        detail  = get_detail(param='body', field='password', message=message, err='value_error')
+        return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content={'detail': detail})        
 
     except Exception as error:
         print(traceback.print_exc())

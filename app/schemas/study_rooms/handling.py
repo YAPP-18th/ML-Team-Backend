@@ -87,3 +87,39 @@ class QueryNeedyStudyRoomHandling(ErrorResponseBase):
                 ]
             }
         }
+
+
+class NoEmptyRoomHandling(ErrorResponseBase):
+    class Config:
+        schema_extra = {
+            'example': {
+                "detail": [
+                    {
+                        "loc": [
+                            "database",
+                            "study room"
+                        ],
+                        "msg": "no empty",
+                        "type": "database"
+                    }
+                ]
+            }
+        }    
+
+
+class ForbiddenUserHandling(ErrorResponseBase):
+    class Config:
+        schema_extra = {
+            'example': {
+                "detail": [
+                    {
+                        "loc": [
+                            "body",
+                            "password"
+                        ],
+                        "msg": "forbidden",
+                        "type": "invalid"
+                    }
+                ]
+            }
+        }        
