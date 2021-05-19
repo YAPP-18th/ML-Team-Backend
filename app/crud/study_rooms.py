@@ -4,6 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm   import Session
 from sqlalchemy.exc   import IntegrityError
 
+from app.core         import study_rooms_settings
 from app.crud.base    import CRUDBase
 from app.models       import StudyRooms
 from app.schemas      import (
@@ -17,6 +18,9 @@ from app.errors       import (
                         RequestConflictException,
                         ForbiddenException
                         )
+
+
+MAX_CAPACITY = study_rooms_settings.MAX_CAPACITY
 
 
 def check_password_exist(room_info: Union[StudyRoomsCreate, StudyRoomsUpdate]):
@@ -49,7 +53,7 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
 
     def get_multi(self, db: Session, skip: int, limit: int, option: str):
         data = db.query(self.model).filter(
-                self.model.current_join_counts < 5
+                self.model.current_join_counts < MAX_CAPACITY
             ).with_entities(
                 self.model.id,
                 self.model.title,
@@ -116,7 +120,7 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
             data = db.query(self.model).filter(self.model.id == UUID(room_id)).first()
             study_room = jsonable_encoder(data)
             if study_room:
-                if study_room['current_join_counts'] >= 5:
+                if study_room['current_join_counts'] >= MAX_CAPACITY:
                     raise RequestConflictException(message='no empty')
                 
                 if study_room['is_public']:
@@ -136,6 +140,22 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
 
         except ValueError:
             raise NoSuchElementException(message='not found')
+
+
+    def leave(self, db: Session, room_id: str):
+        try: 
+            db.query(self.model).filter(self.model.id == UUID(room_id)).update(
+                {'current_join_counts': self.model.current_join_counts  - 1} 
+            )
+            db.commit()
+            return 'room leaved'
+
+        except Exception as error:
+            # TODO: 더 구체적인 에러 핸들링 필요 ex. Positive Integer(MIN_CAPACITY)
+            return error
+
+        finally:
+            db.close()
 
 
 study_rooms = CRUDStudyRoom(StudyRooms)

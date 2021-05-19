@@ -15,4 +15,4 @@ server.mount('/', socketio.ASGIApp(sio, other_asgi_app=server))
 
 
 if __name__ == "__main__":
-    uvicorn.run('app.main:server', host="0.0.0.0", port=8000, reload=True, debug=True)
+    uvicorn.run('app.main:server', host="0.0.0.0", port=8000, reload=True)

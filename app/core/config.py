@@ -23,6 +23,8 @@ class UserSettings(BaseSettings):
 
 class StudyRoomSettings(BaseSettings):
     API_STUDY_ROOM: str = '/study-rooms'
+    MIN_CAPACITY: int   = 0
+    MAX_CAPACITY: int   = 5
 
 
 class SocketSettings(BaseSettings):
