@@ -57,7 +57,6 @@ router = APIRouter()
 )
 def get_study_room(room_id: str, db: Session = Depends(get_db)):
     try:
-        print(db)
         data = study_rooms.get(db, room_id)
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
 
@@ -234,7 +233,8 @@ def create_study_room(room_info: StudyRoomsCreate, db: Session = Depends(get_db)
 
 
 @router.post(
-    '/{room_id}/join',
+    # Endpoint 이름 변경
+    '/{room_id}/join-check',
     responses = {
         200: {
             "model": SuccessResponseBase,
@@ -265,7 +265,7 @@ def create_study_room(room_info: StudyRoomsCreate, db: Session = Depends(get_db)
 )
 def join_study_room(room_id: str, room_info: StudyRoomJoin, db: Session = Depends(get_db)):
     try:
-        # Redis 통해서 현재 사용자가 특정 방에 접속 중일 경우 에러 반환 로직 필요
+        # TODO: Redis 통해서 현재 사용자가 특정 방에 접속 중일 경우 에러 반환 로직 필요
         study_rooms.join(db, room_id, room_info)
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
 
