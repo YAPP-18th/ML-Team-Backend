@@ -1,6 +1,6 @@
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.main import server
+from app.main                import server
 
 
 origins = ["*"]
