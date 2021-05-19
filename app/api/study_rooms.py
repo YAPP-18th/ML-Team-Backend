@@ -265,7 +265,7 @@ def create_study_room(room_info: StudyRoomsCreate, db: Session = Depends(get_db)
 )
 def join_study_room(room_id: str, room_info: StudyRoomJoin, db: Session = Depends(get_db)):
     try:
-        print(room_id)
+        # Redis 통해서 현재 사용자가 특정 방에 접속 중일 경우 에러 반환 로직 필요
         study_rooms.join(db, room_id, room_info)
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
 

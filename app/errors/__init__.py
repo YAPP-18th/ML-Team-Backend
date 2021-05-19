@@ -2,5 +2,7 @@ from app.errors.customs     import (
                             get_detail,
                             InternalException,
                             NoSuchElementException,
-                            InvalidArgumentException
+                            InvalidArgumentException,
+                            RequestConflictException,
+                            ForbiddenException
                             )
