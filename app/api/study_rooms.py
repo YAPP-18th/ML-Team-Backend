@@ -116,7 +116,7 @@ def update_study_room(room_id: str, room_info: StudyRoomsUpdate, db: Session = D
 
     except Exception as error:
         print(traceback.print_exc())
-        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': f'server error: {detail}'})
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={'detail': f'server error: {error}'})
 
 
 @router.delete(
