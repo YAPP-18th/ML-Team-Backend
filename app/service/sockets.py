@@ -7,6 +7,8 @@ from app.crud               import study_rooms
 from app.database           import SessionLocal
 
 
+# TODO: server.mount 외에 소켓 route 통신 방법 
+
 db            = SessionLocal()
 sio           = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*', debug=True)
 namespace_url = socket_settinngs.NAMESPACE_URL
