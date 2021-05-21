@@ -21,6 +21,15 @@ class DevelopSettings(BaseSettings):
     ALLOW_HOST: list = ['*']
 
 
+class DeploySettings(BaseSettings):
+    # TODO: 차후 배포 전 상세 설정 필요
+    ALLOW_ORIGIN: list = ['*']
+    ALLOW_CREDENTIAL: bool = True
+    ALLOW_METHODS: list = ['*']
+    ALLOW_HEADERS: list = ['*']
+    ALLOW_HOST: list = ['*']
+
+
 class UserSettings(BaseSettings):
     API_USER: str = '/user'
     SECRET_KEY: str = secrets.token_urlsafe(32)
@@ -40,6 +49,7 @@ class SocketSettings(BaseSettings):
 
 common_settings      = CommonSettings()
 develop_settings     = DevelopSettings()
+deploy_settings      = DeploySettings()
 user_settings        = UserSettings()
 study_rooms_settings = StudyRoomSettings()
 socket_settinngs     = SocketSettings()
