@@ -62,6 +62,7 @@ def upgrade():
         sa.Column('star_count', sa.Integer, nullable=True),
         sa.Column('disturbance', sa.ARRAY(sa.JSON), nullable=True),
         sa.Column('report_id', sa.Integer(), sa.ForeignKey('reports.id', ondelete='CASCADE')),
+        sa.Column('study_room_id', UUID(), sa.ForeignKey('study_rooms.id', ondelete='CASCADE'))
     )
     
 

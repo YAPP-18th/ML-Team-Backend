@@ -31,3 +31,4 @@ class StudyRooms(Base):
     created_at           = Column(DateTime(), default=KOR_NOW, nullable=False)
     owner_id             = Column(Integer(), ForeignKey('users.user_id', ondelete='CASCADE'))
     owner                = relation('User', back_populates='study_rooms')
+    my_study             = relation('MyStudies', back_populates='study_room')
