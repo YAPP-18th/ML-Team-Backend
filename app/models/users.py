@@ -19,4 +19,5 @@ class User(Base):
     social_id     = Column('user_social_id', String, nullable=False, unique=True)
     nickname      = Column('user_nickname', String, nullable=False, unique=True)
     goal          = Column('user_goal', JSON, nullable=False)
-    study_rooms   = relation('StudyRooms', back_populates = "owner")
+    study_rooms   = relation('StudyRooms', back_populates = 'owner')
+    reports       = relation('Reports', back_populates = 'user')
