@@ -1,15 +1,29 @@
 import socketio
 import uvicorn
 
-from fastapi     import FastAPI
+from fastapi                        import FastAPI
+from fastapi.middleware.cors        import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
-from app.api     import api_router
-from app.core    import common_settings
-from app.service import sio
+from app.api                        import api_router
+from app.core                       import common_settings, develop_settings
+from app.service                    import sio
 
 
 server  = FastAPI(title=common_settings.PROJECT_NAME)
 sio_app = socketio.ASGIApp(socketio_server=sio, other_asgi_app=server)
+
+server.add_middleware(
+    CORSMiddleware,
+    allow_origins = develop_settings.ALLOW_ORIGIN,
+    allow_credentials = develop_settings.ALLOW_CREDENTIAL,
+    allow_methods = develop_settings.ALLOW_METHODS,
+    allow_headers = develop_settings.ALLOW_HEADERS
+)
+server.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts = develop_settings.ALLOW_HOST,
+)
 server.add_websocket_route("/socket.io/", sio_app)
 server.include_router(api_router, prefix=common_settings.COMMON_API)
 

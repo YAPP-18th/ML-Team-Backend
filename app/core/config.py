@@ -1,5 +1,4 @@
 import secrets
-from uuid import NAMESPACE_URL
 
 from pydantic import BaseSettings
 
@@ -12,6 +11,14 @@ class CommonSettings(BaseSettings):
 
     class Config:
         env_file = ".env"
+
+
+class DevelopSettings(BaseSettings):
+    ALLOW_ORIGIN: list = ['*']
+    ALLOW_CREDENTIAL: bool = True
+    ALLOW_METHODS: list = ['*']
+    ALLOW_HEADERS: list = ['*']
+    ALLOW_HOST: list = ['*']
 
 
 class UserSettings(BaseSettings):
@@ -32,6 +39,7 @@ class SocketSettings(BaseSettings):
 
 
 common_settings      = CommonSettings()
+develop_settings     = DevelopSettings()
 user_settings        = UserSettings()
 study_rooms_settings = StudyRoomSettings()
 socket_settinngs     = SocketSettings()
