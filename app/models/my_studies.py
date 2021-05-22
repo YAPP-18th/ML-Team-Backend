@@ -2,6 +2,7 @@ from sqlalchemy                     import (
                                         Column,
                                         Integer,
                                         ForeignKey,
+                                        Date,
                                         ARRAY,
                                         JSON,
                                         TIMESTAMP
@@ -15,6 +16,7 @@ from app.database                   import Base
 class MyStudies(Base):
     __tablename__ = 'my_studies'
     id            = Column(Integer(), primary_key=True, autoincrement=True)
+    date          = Column(Date, nullable=False)
     started_at    = Column(TIMESTAMP, nullable=False)
     ended_at      = Column(TIMESTAMP, nullable=False)
     total_time    = Column(Integer(), nullable=True)
