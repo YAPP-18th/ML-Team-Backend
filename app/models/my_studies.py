@@ -16,9 +16,8 @@ from app.database                   import Base
 class MyStudies(Base):
     __tablename__ = 'my_studies'
     id            = Column(Integer(), primary_key=True, autoincrement=True)
-    date          = Column('study_date', Date, nullable=False)
     started_at    = Column(TIMESTAMP, nullable=False)
-    ended_at      = Column(TIMESTAMP, nullable=False)
+    ended_at      = Column(TIMESTAMP, nullable=True)
     total_time    = Column(Integer(), nullable=True)
     star_count    = Column(Integer(), nullable=True)
     disturbance   = Column(ARRAY(JSON), nullable=True)

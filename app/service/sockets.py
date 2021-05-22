@@ -2,14 +2,14 @@ import socketio
 
 from sqlalchemy.orm.session import Session
 
-from app.core               import socket_settinngs
+from app.core               import socket_settings
 from app.crud               import study_rooms
 from app.database           import SessionLocal
 
 
 db            = SessionLocal()
 sio           = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*', debug=True)
-namespace_url = socket_settinngs.NAMESPACE_URL
+namespace_url = socket_settings.NAMESPACE_URL
 clients       = dict()
 
 

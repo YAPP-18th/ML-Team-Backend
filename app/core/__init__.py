@@ -3,5 +3,5 @@ from app.core.config import (
                         develop_settings,
                         study_rooms_settings,
                         user_settings,
-                        socket_settinngs
+                        socket_settings
                         )   
