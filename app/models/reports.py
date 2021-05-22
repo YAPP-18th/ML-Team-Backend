@@ -14,11 +14,11 @@ from app.database   import Base
 class Reports(Base):
     __tablename__     = 'reports'
     id                = Column(Integer(), primary_key=True, autoincrement=True)
-    date              = Column('report_date', Date, nullable=False)
-    achivement        = Column(Integer(), nullable=False)
-    concentration     = Column(Integer(), nullable=False)
-    total_time        = Column(Integer(), nullable=False)
-    total_star_count  = Column(Integer(), nullable=False)
+    date              = Column(Date, nullable=False)
+    achivement        = Column(Integer(), nullable=True)
+    concentration     = Column(Integer(), nullable=True)
+    total_time        = Column(Integer(), nullable=True)
+    total_star_count  = Column(Integer(), nullable=True)
     total_disturbance = Column(ARRAY(JSON), nullable=True)
     user_id           = Column(Integer(), ForeignKey('users.user_id', ondelete='CASCADE'))
     user              = relation('User', back_populates='reports')
