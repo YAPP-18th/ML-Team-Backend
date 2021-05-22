@@ -44,6 +44,7 @@ def upgrade():
     op.create_table(
         'reports',
         sa.Column('id', sa.Integer(), autoincrement=True, primary_key=True),
+        sa.Column('report_date', sa.Date, nullable=False),
         sa.Column('achivement', sa.Integer(), nullable=False),
         sa.Column('concentration', sa.Integer(), nullable=False),
         sa.Column('total_time', sa.Integer(), nullable=False),
@@ -55,7 +56,7 @@ def upgrade():
     op.create_table(
         'my_studies',
         sa.Column('id', sa.Integer(), autoincrement=True, primary_key=True),
-        sa.Column('date', sa.Date, nullable=False),
+        sa.Column('study_date', sa.Date, nullable=False),
         sa.Column('started_at', sa.TIMESTAMP, nullable=False),
         sa.Column('ended_at', sa.TIMESTAMP, nullable=False),
         sa.Column('total_time', sa.Integer(), nullable=False),
