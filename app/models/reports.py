@@ -15,7 +15,7 @@ class Reports(Base):
     __tablename__     = 'reports'
     id                = Column(Integer(), primary_key=True, autoincrement=True)
     date              = Column(Date, nullable=False)
-    achivement        = Column(Integer(), nullable=True)
+    achievement       = Column(Integer(), nullable=True)
     concentration     = Column(Integer(), nullable=True)
     total_time        = Column(Integer(), nullable=True)
     total_star_count  = Column(Integer(), nullable=True)
