@@ -48,16 +48,9 @@ class SocketSettings(BaseSettings):
     NAMESPACE_URL: str = '/study'
 
 
-class TimeSettings(BaseSettings):
-    UTC_NOW = datetime.utcnow()
-    KST     = timedelta(hours=9)
-    KOR_NOW = UTC_NOW + KST
-
-
 common_settings      = CommonSettings()
 develop_settings     = DevelopSettings()
 deploy_settings      = DeploySettings()
 user_settings        = UserSettings()
 study_rooms_settings = StudyRoomSettings()
 socket_settings      = SocketSettings()
-time_settings        = TimeSettings()
