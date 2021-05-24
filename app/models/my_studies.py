@@ -1,4 +1,4 @@
-from datetime                       import datetime, timedelta
+from datetime                       import datetime
 from sqlalchemy                     import (
                                         Column,
                                         Integer,
@@ -12,11 +12,10 @@ from sqlalchemy.orm                 import relation
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.database                   import Base
+from app.core                       import time_settings
 
 
-UTC_NOW = datetime.utcnow()
-KST     = timedelta(hours=9)
-KOR_NOW = UTC_NOW + KST
+KOR_NOW = datetime.utcnow() + time_settings.KST
 
 
 class MyStudies(Base):

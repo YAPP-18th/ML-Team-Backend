@@ -1,6 +1,6 @@
 import secrets
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pydantic import BaseSettings
 
 
@@ -48,9 +48,14 @@ class SocketSettings(BaseSettings):
     NAMESPACE_URL: str = '/study'
 
 
+class TimeSettings(BaseSettings):
+    KST = timedelta(hours=9)
+
+
 common_settings      = CommonSettings()
 develop_settings     = DevelopSettings()
 deploy_settings      = DeploySettings()
 user_settings        = UserSettings()
 study_rooms_settings = StudyRoomSettings()
 socket_settings      = SocketSettings()
+time_settings        = TimeSettings()
