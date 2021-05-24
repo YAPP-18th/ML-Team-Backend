@@ -1,4 +1,4 @@
-from datetime       import datetime, timedelta
+from datetime       import datetime
 from sqlalchemy     import (
                         Column,
                         ForeignKey,
@@ -8,11 +8,10 @@ from sqlalchemy     import (
 from sqlalchemy.orm import relation
 
 from app.database   import Base
+from app.core       import time_settings
 
 
-UTC_NOW  = datetime.utcnow()
-KST      = timedelta(hours=9)
-KOR_NOW  = UTC_NOW + KST
+KOR_NOW  = datetime.utcnow() + time_settings.KST
 
 if (KOR_NOW.hour >= 00) and (KOR_NOW.hour < 5):
     KOR_DATE = datetime(KOR_NOW.year, KOR_NOW.month, KOR_NOW.day - 1)
