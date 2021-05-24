@@ -19,7 +19,7 @@ class Reports(Base):
     concentration     = Column(Integer(), nullable=True)
     total_time        = Column(Integer(), nullable=True)
     total_star_count  = Column(Integer(), nullable=True)
-    total_disturbance = Column(ARRAY(JSON), nullable=True)
     user_id           = Column(Integer(), ForeignKey('users.user_id', ondelete='CASCADE'))
     user              = relation('User', back_populates='reports')
     my_studies        = relation('MyStudies', back_populates='report')
+    total_disturbance = relation('Disturbances', back_populates='report')

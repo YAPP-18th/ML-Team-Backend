@@ -35,6 +35,7 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
             ).with_entities(
                 self.model.id,
                 self.model.title,
+                self.model.style,
                 self.model.description,
                 self.model.is_public,
                 self.model.current_join_counts,
@@ -57,6 +58,7 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
             ).with_entities(
                 self.model.id,
                 self.model.title,
+                self.model.style,
                 self.model.description,
                 self.model.is_public,
                 self.model.current_join_counts,
