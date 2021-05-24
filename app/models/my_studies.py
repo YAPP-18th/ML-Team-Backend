@@ -1,3 +1,4 @@
+from datetime                       import datetime, timedelta
 from sqlalchemy                     import (
                                         Column,
                                         Integer,
@@ -13,10 +14,15 @@ from sqlalchemy.dialects.postgresql import UUID
 from app.database                   import Base
 
 
+UTC_NOW = datetime.utcnow()
+KST     = timedelta(hours=9)
+KOR_NOW = UTC_NOW + KST
+
+
 class MyStudies(Base):
     __tablename__ = 'my_studies'
     id            = Column(Integer(), primary_key=True, autoincrement=True)
-    started_at    = Column(TIMESTAMP, nullable=False)
+    started_at    = Column(TIMESTAMP, default=KOR_NOW, nullable=False)
     ended_at      = Column(TIMESTAMP, nullable=True)
     total_time    = Column(Integer(), nullable=True)
     star_count    = Column(Integer(), nullable=True)
