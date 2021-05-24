@@ -1,5 +1,6 @@
+import enum
+
 from uuid                           import uuid4
-from datetime                       import datetime, timedelta
 from sqlalchemy                     import (
                                         Column,
                                         ForeignKey,
@@ -7,28 +8,34 @@ from sqlalchemy                     import (
                                         Boolean,
                                         Integer,
                                         SmallInteger,
-                                        DateTime
+                                        DateTime,
+                                        Enum
                                         )
 from sqlalchemy.orm                 import relation
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.database                   import Base
+from app.core                       import time_settings
 
 
-UTC_NOW = datetime.utcnow()
-KST     = timedelta(hours=9)
-KOR_NOW = UTC_NOW + KST
+
+class Style(str, enum.Enum):
+    STYLE_1 = 'style_1'
+    STYLE_2 = 'style_2'
+    STYLE_3 = 'style_3'
+    STYLE_4 = 'style_4'
 
 
 class StudyRooms(Base):
     __tablename__        = 'study_rooms'
     id                   = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     title                = Column(String(64), nullable=False)
-    description          = Column(String(256), nullable=False)
+    style                = Column(Enum(Style), nullable=False)
+    description          = Column(String(256), nullable=True)
     is_public            = Column(Boolean(), nullable=False)
     password             = Column(String(32), nullable=True)
     current_join_counts  = Column(SmallInteger(), nullable=False, default=0)
-    created_at           = Column(DateTime(), default=KOR_NOW, nullable=False)
+    created_at           = Column(DateTime(), default=time_settings.KOR_NOW, nullable=False)
     owner_id             = Column(Integer(), ForeignKey('users.user_id', ondelete='CASCADE'))
     owner                = relation('User', back_populates='study_rooms')
     my_study             = relation('MyStudies', back_populates='study_room')

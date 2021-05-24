@@ -1,14 +1,17 @@
-from typing   import Optional
-from pydantic import BaseModel
+from typing     import Optional
+from pydantic   import BaseModel
+
+from app.models import Style
 
 
 class StudyRoomsBase(BaseModel):
+    description: Optional[str]
     password: Optional[str]
 
 
 class StudyRoomsCreate(StudyRoomsBase):
     title: str
-    description: str
+    style: Style
     is_public: bool
     current_join_counts: int = 0
     owner_id: int
@@ -17,6 +20,7 @@ class StudyRoomsCreate(StudyRoomsBase):
         schema_extra = {
             'example': {
                 'title': '주 4시간 이상 고시 공부방 🔥',
+                'style': 'style_2',
                 'description': '같이 열심히 공부하실 분들만!',
                 'is_public': False,
                 'password': 'TestPassword!234',
@@ -27,7 +31,6 @@ class StudyRoomsCreate(StudyRoomsBase):
 
 class StudyRoomsUpdate(StudyRoomsBase):
     title: Optional[str]
-    description: Optional[str]
     is_public: Optional[bool]
 
     class Config:
