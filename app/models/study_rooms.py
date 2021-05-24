@@ -19,9 +19,6 @@ from app.database                   import Base
 from app.core                       import time_settings
 
 
-KOR_NOW = datetime.utcnow() + time_settings.KST
-
-
 class Style(str, enum.Enum):
     STYLE_1 = 'style_1'
     STYLE_2 = 'style_2'
@@ -38,7 +35,7 @@ class StudyRooms(Base):
     is_public            = Column(Boolean(), nullable=False)
     password             = Column(String(32), nullable=True)
     current_join_counts  = Column(SmallInteger(), nullable=False, default=0)
-    created_at           = Column(DateTime(), default=KOR_NOW, nullable=False)
+    created_at           = Column(DateTime(), default=datetime.utcnow() + time_settings.KST, nullable=False)
     owner_id             = Column(Integer(), ForeignKey('users.user_id', ondelete='CASCADE'))
     owner                = relation('User', back_populates='study_rooms')
     my_study             = relation('MyStudies', back_populates='study_room')
