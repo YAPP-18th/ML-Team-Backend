@@ -3,9 +3,6 @@ from sqlalchemy                     import (
                                         Column,
                                         Integer,
                                         ForeignKey,
-                                        Date,
-                                        ARRAY,
-                                        JSON,
                                         TIMESTAMP
                                         )
 from sqlalchemy.orm                 import relation
