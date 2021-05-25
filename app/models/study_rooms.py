@@ -16,7 +16,6 @@ from sqlalchemy.orm                 import relation
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.database                   import Base
-from app.core                       import time_settings
 
 
 class Style(str, enum.Enum):
@@ -35,7 +34,7 @@ class StudyRooms(Base):
     is_public            = Column(Boolean(), nullable=False)
     password             = Column(String(32), nullable=True)
     current_join_counts  = Column(SmallInteger(), nullable=False, default=0)
-    created_at           = Column(DateTime(), default=datetime.utcnow() + time_settings.KST, nullable=False)
+    created_at           = Column(DateTime(), nullable=False)
     owner_id             = Column(Integer(), ForeignKey('users.user_id', ondelete='CASCADE'))
     owner                = relation('User', back_populates='study_rooms')
     my_study             = relation('MyStudies', back_populates='study_room')
