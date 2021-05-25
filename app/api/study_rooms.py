@@ -1,5 +1,6 @@
 import traceback
 
+from typing                  import Optional
 from fastapi                 import (
                                 APIRouter,
                                 Depends,
@@ -177,9 +178,15 @@ def delete_study_room(room_id: str, db: Session = Depends(get_db)):
         }
     }
 )
-def get_study_rooms(skip: int, limit: int, option: str='created_at', db: Session = Depends(get_db)):
+def get_study_rooms(
+    skip: int,
+    limit: int,
+    owner_id: Optional[int] = None,
+    option: str = 'created_at',
+    db: Session = Depends(get_db)
+):
     try:
-        data = study_rooms.get_multi(db, skip, limit, option)
+        data = study_rooms.get_multi(db, skip, limit, owner_id, option)
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
 
     except NoSuchElementException as element_err:
