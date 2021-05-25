@@ -158,6 +158,9 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
         except ValueError:
             raise NoSuchElementException(message='not found')
 
+        finally:
+            db.close()
+
 
     def leave(self, db: Session, room_id: str):
         try: 
