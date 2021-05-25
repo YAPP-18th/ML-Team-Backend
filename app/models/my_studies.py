@@ -18,7 +18,7 @@ class MyStudies(Base):
     total_time    = Column('my_study_total_time', Integer(), nullable=True)
     star_count    = Column('my_study_star_count', Integer(), nullable=True)
     report_id     = Column(Integer(), ForeignKey('reports.report_id', ondelete='CASCADE'))
-    study_room_id = Column(UUID(), ForeignKey('study_rooms.study_room_id', ondelete='CASCADE'))
+    study_room_id = Column(UUID(as_uuid=True), ForeignKey('study_rooms.study_room_id', ondelete='CASCADE'))
     report        = relation('Reports', back_populates='my_studies')
     study_room    = relation('StudyRooms', back_populates='my_study')
     disturbance   = relation('Disturbances', back_populates='my_study')
