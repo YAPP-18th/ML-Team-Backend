@@ -1,5 +1,6 @@
 from uuid             import UUID
 from typing           import Union
+from datetime         import datetime
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm   import Session
 from sqlalchemy.exc   import IntegrityError
@@ -18,6 +19,7 @@ from app.errors       import (
                         RequestConflictException,
                         ForbiddenException
                         )
+from app.core         import time_settings
 
 
 MAX_CAPACITY = study_rooms_settings.MAX_CAPACITY
@@ -78,6 +80,7 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
                 raise InvalidArgumentException(message='field required')
 
             room_info.current_join_counts += 1
+            room_info.created_at           = datetime.utcnow() + time_settings.KST
             data = self.model(**jsonable_encoder(room_info))
             db.add(data)
             db.commit()

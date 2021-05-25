@@ -1,5 +1,6 @@
 from typing     import Optional
 from pydantic   import BaseModel
+from datetime   import datetime
 
 from app.models import Style
 
@@ -14,6 +15,7 @@ class StudyRoomsCreate(StudyRoomsBase):
     style: Style
     is_public: bool
     current_join_counts: int = 0
+    created_at: Optional[datetime]
     owner_id: int
 
     class Config:
