@@ -1,4 +1,3 @@
-from datetime       import datetime
 from sqlalchemy     import (
                         Column,
                         ForeignKey,
@@ -12,12 +11,12 @@ from app.database   import Base
 
 class Reports(Base):
     __tablename__     = 'reports'
-    id                = Column(Integer(), primary_key=True, autoincrement=True)
-    date              = Column(Date, nullable=False)
-    achievement       = Column(Integer(), nullable=True)
-    concentration     = Column(Integer(), nullable=True)
-    total_time        = Column(Integer(), nullable=True)
-    total_star_count  = Column(Integer(), nullable=True)
+    id                = Column('report_id', Integer(), primary_key=True, autoincrement=True)
+    date              = Column('report_date', Date, nullable=False)
+    achievement       = Column('report_achievement', Integer(), nullable=True)
+    concentration     = Column('report_concentration', Integer(), nullable=True)
+    total_time        = Column('report_total_time', Integer(), nullable=True)
+    total_star_count  = Column('report_total_star_count', Integer(), nullable=True)
     user_id           = Column(Integer(), ForeignKey('users.user_id', ondelete='CASCADE'))
     user              = relation('User', back_populates='reports')
     my_studies        = relation('MyStudies', back_populates='report')
