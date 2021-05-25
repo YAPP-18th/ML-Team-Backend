@@ -51,6 +51,14 @@ class StudyRoomSettings(BaseSettings):
     MAX_CAPACITY: int   = 5
 
 
+class MyStudySettings(BaseSettings):
+    API_MY_STUDY: str = '/my-studies'
+
+
+class ReportSettings(BaseSettings):
+    API_REPORT: str = '/reports'
+
+
 class SocketSettings(BaseSettings):
     NAMESPACE_URL: str = '/study'
 
@@ -64,5 +72,7 @@ develop_settings     = DevelopSettings()
 deploy_settings      = DeploySettings()
 user_settings        = UserSettings()
 study_rooms_settings = StudyRoomSettings()
+my_studies_settings  = MyStudySettings()
+report_settings      = ReportSettings()
 socket_settings      = SocketSettings()
 time_settings        = TimeSettings()
