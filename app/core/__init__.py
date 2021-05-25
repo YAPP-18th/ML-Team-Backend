@@ -4,6 +4,8 @@ from app.core.config import (
                         deploy_settings,
                         study_rooms_settings,
                         user_settings,
+                        my_studies_settings,
+                        report_settings,
                         socket_settings,
                         time_settings
                         )   

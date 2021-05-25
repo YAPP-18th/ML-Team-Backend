@@ -1,0 +1,1 @@
+from app.schemas.my_studies.crud import MyStudiesCreate, MyStudiesUpdate
