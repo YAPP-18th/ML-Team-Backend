@@ -1,7 +1,8 @@
 from uuid             import UUID
-from typing           import Union
+from typing           import Union, Optional
 from datetime         import datetime
 from fastapi.encoders import jsonable_encoder
+from sqlalchemy       import and_
 from sqlalchemy.orm   import Session
 from sqlalchemy.exc   import IntegrityError
 
@@ -54,10 +55,14 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
             raise NoSuchElementException(message='not found')
 
 
-    def get_multi(self, db: Session, skip: int, limit: int, option: str):
-        data = db.query(self.model).filter(
+    def get_multi(self, db: Session, skip: int, limit: int, owner_id: Optional[int], option: str):
+        query = db.query(self.model)
+        if owner_id:
+            query = query.filter(self.model.owner_id == owner_id)
+
+        data = query.filter((
                 self.model.current_join_counts < MAX_CAPACITY
-            ).with_entities(
+            )).with_entities(
                 self.model.id,
                 self.model.title,
                 self.model.style,
