@@ -19,6 +19,7 @@ from app.schemas             import (
                                 GetStudyRoomResponse,
                                 GetStudyRoomsResponse,
                                 NotFoundStudyRoomHandling,
+                                NotFoundUserHandling,
                                 PasswordNeedyStudyRoomHandling,
                                 BodyNeedyStudyRoomHandling,
                                 QueryNeedyStudyRoomHandling,
@@ -164,7 +165,7 @@ def delete_study_room(room_id: str, db: Session = Depends(get_db)):
         },
         404: {
             "model": NotFoundStudyRoomHandling,
-            "description": "조회한 스터디룸이 존재하지 않는 경우"
+            "description": "조회할 스터디룸이 존재하지 않는 경우"
         },
         422: {
             "model": QueryNeedyStudyRoomHandling,
@@ -183,7 +184,7 @@ def get_study_rooms(skip: int, limit: int, option: str='created_at', db: Session
 
     except NoSuchElementException as element_err:
         message = element_err.message
-        detail  = get_detail(param='database', field='user', message=message, err='database')
+        detail  = get_detail(param='database', field='study room', message=message, err='database')
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
 
     except Exception as error:
@@ -199,7 +200,7 @@ def get_study_rooms(skip: int, limit: int, option: str='created_at', db: Session
             "description": "스터디룸 생성 성공"
         },
         404: {
-            "model": NotFoundStudyRoomHandling,
+            "model": NotFoundUserHandling,
             "description": "방을 만드려는 사용자가 존재하지 않는 경우 (Postman 등을 통한 악용 방지)"
         },
         422: {
@@ -245,7 +246,7 @@ def create_study_room(room_info: StudyRoomsCreate, db: Session = Depends(get_db)
         },
         404: {
             "model": NotFoundStudyRoomHandling,
-            "description": "존재하지 않으려는 방에 접근하려는 경우"
+            "description": "존재하지 않는 방에 접근하려는 경우"
         },
         409: {
             "model": NoEmptyRoomHandling,
