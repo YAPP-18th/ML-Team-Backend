@@ -66,7 +66,7 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
                 self.model.current_join_counts,
                 self.model.created_at,
                 self.model.owner_id
-            ).order_by(f'{option}').offset(skip).limit(limit).all()
+            ).order_by(f'study_room_{option}').offset(skip).limit(limit).all()
 
         if data:
             return jsonable_encoder(data)
