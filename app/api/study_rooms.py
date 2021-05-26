@@ -179,10 +179,10 @@ def delete_study_room(room_id: str, db: Session = Depends(get_db)):
     }
 )
 def get_study_rooms(
-    skip: int,
-    limit: int,
+    skip: Optional[int] = None,
+    limit: Optional[int] = None,
     owner_id: Optional[int] = None,
-    option: str = 'created_at',
+    option: Optional[str] = 'created_at',
     db: Session = Depends(get_db)
 ):
     try:

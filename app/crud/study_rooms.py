@@ -55,7 +55,14 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
             raise NoSuchElementException(message='not found')
 
 
-    def get_multi(self, db: Session, skip: int, limit: int, owner_id: Optional[int], option: str):
+    def get_multi(
+        self,
+        db: Session,
+        skip: Optional[int],
+        limit: Optional[int],
+        owner_id: Optional[int],
+        option: Optional[str]
+    ):
         query = db.query(self.model)
         if owner_id:
             query = query.filter(self.model.owner_id == owner_id)
