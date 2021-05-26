@@ -67,9 +67,9 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
         if owner_id:
             query = query.filter(self.model.owner_id == owner_id)
 
-        data = query.filter((
+        data = query.filter(
                 self.model.current_join_counts < MAX_CAPACITY
-            )).with_entities(
+            ).with_entities(
                 self.model.id,
                 self.model.title,
                 self.model.style,
