@@ -29,8 +29,8 @@ class DeploySettings(BaseSettings):
     ALLOW_CREDENTIAL: bool = True
     ALLOW_METHODS: list = ['*']
     ALLOW_HEADERS: list = ['*']
-    ALLOW_HOST: list = ['*']
-    ALLOW_EXPOSE_HEADERS: list = ['*']
+    ALLOW_HOST: list = ['https://studeep.com', 'localhost']
+    ALLOW_EXPOSE_HEADERS: list = ['Authorization', 'authorization']
 
 
 class UserSettings(BaseSettings):
