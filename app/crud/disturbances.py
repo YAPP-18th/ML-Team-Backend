@@ -1,12 +1,23 @@
 from sqlalchemy     import and_
 from sqlalchemy.orm import Session
-from sqlalchemy.sql.functions import count
 
 from app.crud.base  import CRUDBase
 from app.models     import Disturbances
 from app.schemas    import DisturbanceCreate, DisturbanceUpdate
 
 class CRUDDisturbance(CRUDBase[Disturbances, DisturbanceCreate, DisturbanceUpdate]):
+    def create(self, db: Session, disturbances: list):
+        try: 
+            db.bulk_insert_mappings(self.model, disturbances)
+            db.commit()
+            
+        except:
+            raise Exception
+
+        finally:
+            db.close()
+        
+
     def update_or_create(
         self,
         db: Session,

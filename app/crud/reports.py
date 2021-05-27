@@ -1,38 +1,55 @@
-from datetime         import date, datetime
-from sqlalchemy       import and_
+from datetime         import datetime
+from sqlalchemy       import and_, func
 from sqlalchemy.orm   import Session
 from fastapi.encoders import jsonable_encoder
 
 from app.models       import Reports, Disturbances
 from app.schemas      import ReportsCreate, ReportsUpdate
 from app.crud.base    import CRUDBase
+from app.errors       import NoSuchElementException
+from app.core         import time_settings
 
 
 class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
-    def get(self, db: Session, user_id: str, date: date):
-        try:
-            data = db.query(self.model).filter(and_(
-                self.model.user_id == user_id,
-                self.model.date    == date
-            )).outerjoin(
-                Disturbances,
-                Disturbances.report_id == self.model.id
+    def get(self, db: Session, user_id: str, date: str):
+        date = datetime.strptime(date, '%Y-%m-%d')
+        instance = db.query(
+            self.model,
+        ).filter(and_(
+            self.model.user_id == user_id,
+            self.model.date    == date
+        )).outerjoin(
+            Disturbances,
+            Disturbances.report_id == self.model.id
+        ).with_entities(
+            self.model.id,
+            self.model.date,
+            self.model.achievement,
+            self.model.concentration,
+            self.model.total_time,
+            self.model.total_star_count,
+            func.count(Disturbances.count).label('total_disturbance_counts')
+        ).group_by(self.model.id).first()
+
+        if instance:
+            report       = jsonable_encoder(instance)
+            disturbances = db.query(Disturbances).filter(
+                Disturbances.report_id == report['id']
             ).with_entities(
+                Disturbances.type,
+                func.count(Disturbances.count).label('total_count'),
+                func.sum(Disturbances.time).label('total_time')
+            ).group_by(Disturbances.type).all()
 
-            ).first()
-
-            if data:
-                return jsonable_encoder(data) 
-            else:
-                # Not Found
-                pass
-
-        except:
-            raise Exception
+            report['disturbances'] = jsonable_encoder(disturbances)
+            return report
+        else:
+            raise NoSuchElementException(message='not found')
 
 
-    def get_or_create(self, db: Session, today: date, user_id: int):
+    def get_or_create(self, db: Session, user_id: int):
         try:
+            today = datetime.utcnow() + time_settings.KST
             if (today.hour >= 0) and (today.hour < 5):
                 date = datetime(today.year, today.month, today.day - 1)
             else:
@@ -63,8 +80,10 @@ class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
         try:
             instance = db.query(self.model).filter(
                 self.model.id == id
-            ).update({'total_time': self.model.total_time + total_time})
+            ).first()
+            
             if instance:
+                instance.total_time += total_time
                 db.commit()
             else:
                 # Not Found

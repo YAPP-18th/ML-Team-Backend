@@ -27,11 +27,15 @@ from app.schemas.study_rooms  import (
                                  )
 from app.schemas.reports      import (
                                  ReportsCreate,
-                                 ReportsUpdate
+                                 ReportsUpdate,
+                                 GetReportReponse,
+                                 NotFoundReportHandling
                                  )
 from app.schemas.my_studies   import (
                                  MyStudiesCreate,
-                                 MyStudiesUpdate
+                                 MyStudiesUpdate,
+                                 GetMyStudiesResponse,
+                                 NotFoundMyStudiesHandling
                                  )
 from app.schemas.disturbances import (
                                 DisturbanceCreate,

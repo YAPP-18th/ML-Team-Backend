@@ -10,12 +10,64 @@ from sqlalchemy.orm.session import Session
 
 from app.api.deps           import get_db
 from app.crud               import my_studies
-
+from app.schemas            import (
+                                ErrorResponseBase,
+                                GetMyStudiesResponse,
+                                NotFoundMyStudiesHandling
+                                )
+from app.errors             import (
+                                get_detail,
+                                NoSuchElementException
+                                )
 
 
 router = APIRouter()
 
 
-@router.get()
-def get_my_studies():
-    pass
+@router.get(
+    '',
+    responses = {
+        200: {
+            "model": GetMyStudiesResponse,
+            "description": "마이스터디 조회 성공"
+        },
+        404: {
+            "model": NotFoundMyStudiesHandling,
+            "description": "조회한 마이 스터디가 없는 경우"
+        },
+        500: {
+            "model": ErrorResponseBase,
+            "description": "서버에서 잡지 못한 에러"
+        }
+    }
+)
+def get_my_studies(date: str, user_id: int, db: Session = Depends(get_db)):
+    try:
+        data = my_studies.get(db, date, user_id)
+        return JSONResponse(
+            status_code = status.HTTP_200_OK,
+            content     = {'data': data}
+        )
+
+    except NoSuchElementException as element_err:
+        message = element_err.message
+        detail  = get_detail(
+            param   = 'database',
+            field   = 'my studies',
+            message = message,
+            err     = 'database'
+        )
+        return JSONResponse(
+            status_code = status.HTTP_404_NOT_FOUND,
+            content     = {'detail': detail}
+        )
+    
+    except Exception as error:
+        print(traceback.print_exc())
+        return JSONResponse(
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content     = {'detail': f'server error: {error}'}
+        )
+    
+    finally:
+        db.close()
