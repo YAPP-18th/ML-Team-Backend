@@ -17,22 +17,12 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     provider: str
     nickname: str
-    goal: dict
 
     class Config:
         schema_extra = {
             'example': {
                 'provider': 'google',
-                'nickname': 'Studeep_User',
-                'goal': {
-                    'MON': 2,
-                    'TUE': 2,
-                    'WED': 2,
-                    'THU': 2,
-                    'FRI': 2,
-                    'SAT': 2,
-                    'SUN': 2
-                }
+                'nickname': 'Studeep_User'
             }
         }
 
