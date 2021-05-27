@@ -1,3 +1,4 @@
+from datetime         import datetime
 from uuid             import UUID
 from typing           import Union, Optional
 from datetime         import datetime
@@ -168,11 +169,10 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
                 {'current_join_counts': self.model.current_join_counts  - 1} 
             )
             db.commit()
-            return 'room leaved'
 
         except Exception as error:
             # TODO: 더 구체적인 에러 핸들링 필요 ex. Positive Integer(MIN_CAPACITY)
-            return error
+            raise Exception
 
         finally:
             db.close()

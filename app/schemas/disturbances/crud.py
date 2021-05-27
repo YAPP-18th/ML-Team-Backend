@@ -1,6 +1,6 @@
 from pydantic   import BaseModel
 
-from app.models import Type
+from app.models import DisturbanceType
 
 
 class DisturbanceBase(BaseModel):
@@ -8,7 +8,7 @@ class DisturbanceBase(BaseModel):
 
 
 class DisturbanceCreate(DisturbanceBase):
-    type: Type
+    type: DisturbanceType
     count: int
     time: int
     my_study_id: int
