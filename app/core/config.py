@@ -16,19 +16,21 @@ class CommonSettings(BaseSettings):
 
 class DevelopSettings(BaseSettings):
     ALLOW_ORIGIN: list = ['*']
-    ALLOW_CREDENTIAL: bool = True
+    ALLOW_CREDENTIAL: bool = False
     ALLOW_METHODS: list = ['*']
     ALLOW_HEADERS: list = ['*']
     ALLOW_HOST: list = ['*']
+    ALLOW_EXPOSE_HEADERS: list = ['*']
 
 
 class DeploySettings(BaseSettings):
     # TODO: 차후 배포 전 상세 설정 필요
-    ALLOW_ORIGIN: list = ['*']
+    ALLOW_ORIGIN: list = ['https://studeep.com']
     ALLOW_CREDENTIAL: bool = True
     ALLOW_METHODS: list = ['*']
     ALLOW_HEADERS: list = ['*']
     ALLOW_HOST: list = ['*']
+    ALLOW_EXPOSE_HEADERS: list = ['*']
 
 
 class UserSettings(BaseSettings):
