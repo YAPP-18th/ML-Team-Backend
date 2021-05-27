@@ -84,9 +84,6 @@ class CRUDMyStudy(CRUDBase[MyStudies, MyStudiesCreate, MyStudiesUpdate]):
                 db.commit()
                 db.refresh(instance)
                 return jsonable_encoder(instance)
-            else:
-                # Not Found
-                pass
 
         except:
             raise Exception
