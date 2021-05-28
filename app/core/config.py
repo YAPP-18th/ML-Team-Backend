@@ -32,12 +32,13 @@ class DevelopSettings(BaseSettings):
 
 class DeploySettings(BaseSettings):
     ALLOW_ORIGIN: list = [
-        'https://www.studeep.com/',
-        'https://api.studeep.com/',
-        'https://studeep.com/',
-        'http://localhost/',
-        'http://localhost:3000/',
-        'http://localhost:8000/'
+        # 'https://www.studeep.com/',
+        # 'https://api.studeep.com/',
+        # 'https://studeep.com/',
+        # 'http://localhost/',
+        # 'http://localhost:3000/',
+        # 'http://localhost:8000/'
+        '*'
     ]
     ALLOW_CREDENTIAL: bool = True
     ALLOW_METHODS: list = ['*']
