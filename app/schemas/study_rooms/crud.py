@@ -34,6 +34,7 @@ class StudyRoomsCreate(StudyRoomsBase):
 class StudyRoomsUpdate(StudyRoomsBase):
     title: Optional[str]
     is_public: Optional[bool]
+    owner_id: int
 
     class Config:
         schema_extra = {

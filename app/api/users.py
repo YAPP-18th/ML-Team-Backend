@@ -98,7 +98,6 @@ def sign_up(*, db: Session = Depends(get_db),
     }
 )
 def sign_in(*, db: Session = Depends(get_db),
-            response: Response,
             authorization: Optional[str] = Header(None)
             ):
     try:
@@ -116,9 +115,9 @@ def sign_in(*, db: Session = Depends(get_db),
                                 headers={"Authorization": 'bearer ' + token}
                                 )
 
-        response.headers["Authorization"] = 'bearer ' + token
-
-        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': jsonable_encoder(user)})
+        return JSONResponse(status_code=status.HTTP_200_OK,
+                            content={'data': jsonable_encoder(user)},
+                            headers={"Authorization": 'bearer ' + token})
     except JWTError:
         message = traceback.format_exc()
         detail = get_detail(param='token', field='authorize', message=message, err='invalid Google token')
@@ -175,6 +174,11 @@ def get_user(
         detail = get_detail(param='token', field='authorize', message=message, err='invalid Google token')
         return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={'detail': detail})
     except NameError:
+        message = traceback.format_exc()
+        detail = get_detail(param='token', field='forbidden', message=message,
+                            err='This token is not access token')
+        return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={'detail': detail})
+    except KeyError:
         message = traceback.format_exc()
         detail = get_detail(param='token', field='forbidden', message=message,
                             err='This token is not access token')

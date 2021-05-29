@@ -85,17 +85,14 @@ class CRUDMyStudy(CRUDBase[MyStudies, MyStudiesCreate, MyStudiesUpdate]):
             
 
             if instance:
-                print('statuses', jsonable_encoder(statuses))
-                print('before ended_at', jsonable_encoder(instance))
                 instance.ended_at   = datetime.utcnow() + time_settings.KST
-                print('after ended_at: ', jsonable_encoder(instance))
                 instance.total_time = (
                     instance.ended_at - instance.started_at
                 ).seconds
                 
                 if jsonable_encoder(statuses)['total_time']:
                     instance.total_time -= jsonable_encoder(statuses)['total_time']
-                    
+
                 db.commit()
                 db.refresh(instance)
                 return jsonable_encoder(instance)
