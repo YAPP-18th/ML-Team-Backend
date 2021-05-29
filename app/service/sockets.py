@@ -51,6 +51,12 @@ class StudyNamespace(socketio.AsyncNamespace):
             #     - 정상적으로 다시 진입했기 때문에 Redis ABNORMAL 삭제
             #     """
             #     # self.clients['re_joined'] = False
+
+            await self.emit(
+                'response',
+                {'message': 'connection'},
+                namespace = self.namespace
+            )            
                 
 
         except Exception as error:
