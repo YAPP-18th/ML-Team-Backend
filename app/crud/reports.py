@@ -45,7 +45,7 @@ class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
             ).group_by(Statuses.type).all()
 
             report['statuses'] = jsonable_encoder(statuses)
-            return report
+            return [report]
         else:
             raise NoSuchElementException(message='not found')
 

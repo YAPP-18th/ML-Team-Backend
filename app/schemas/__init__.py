@@ -23,7 +23,8 @@ from app.schemas.study_rooms import (
                                 BodyNeedyStudyRoomHandling,
                                 QueryNeedyStudyRoomHandling,
                                 NoEmptyRoomHandling,
-                                ForbiddenUserHandling
+                                ForbiddenUserHandling,
+                                ForbiddenPasswordHandling
                                 )
 from app.schemas.reports     import (
                                 ReportsCreate,
