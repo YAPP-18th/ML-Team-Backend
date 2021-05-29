@@ -178,6 +178,11 @@ def get_user(
         detail = get_detail(param='token', field='forbidden', message=message,
                             err='This token is not access token')
         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={'detail': detail})
+    except KeyError:
+        message = traceback.format_exc()
+        detail = get_detail(param='token', field='forbidden', message=message,
+                            err='This token is not access token')
+        return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={'detail': detail})
     except Exception as error:
         logging.error(traceback.format_exc())
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
