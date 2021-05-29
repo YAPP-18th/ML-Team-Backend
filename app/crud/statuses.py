@@ -2,13 +2,13 @@ from sqlalchemy     import and_
 from sqlalchemy.orm import Session
 
 from app.crud.base  import CRUDBase
-from app.models     import Disturbances
-from app.schemas    import DisturbanceCreate, DisturbanceUpdate
+from app.models     import Statuses
+from app.schemas    import StatusCreate, StatusUpdate
 
-class CRUDDisturbance(CRUDBase[Disturbances, DisturbanceCreate, DisturbanceUpdate]):
-    def create(self, db: Session, disturbances: list):
+class CRUDStatus(CRUDBase[Statuses, StatusCreate, StatusUpdate]):
+    def create(self, db: Session, statuses: list):
         try: 
-            db.bulk_insert_mappings(self.model, disturbances)
+            db.bulk_insert_mappings(self.model, statuses)
             db.commit()
             
         except:
@@ -56,4 +56,4 @@ class CRUDDisturbance(CRUDBase[Disturbances, DisturbanceCreate, DisturbanceUpdat
             db.close()
 
 
-disturbances = CRUDDisturbance(Disturbances)
+statuses = CRUDStatus(Statuses)

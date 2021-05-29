@@ -5,7 +5,7 @@ from sqlalchemy       import and_
 from sqlalchemy.orm   import Session
 
 from app.crud.base    import CRUDBase
-from app.models       import MyStudies, Reports, Disturbances, StudyRooms
+from app.models       import MyStudies, Reports, Statuses, StudyRooms
 from app.schemas      import MyStudiesCreate, MyStudiesUpdate
 from app.errors       import NoSuchElementException
 from app.core         import time_settings
@@ -37,14 +37,14 @@ class CRUDMyStudy(CRUDBase[MyStudies, MyStudiesCreate, MyStudiesUpdate]):
 
         if data:
             for my_study in data:
-                my_study['disturbances'] = jsonable_encoder(
-                db.query(Disturbances).filter(
-                    Disturbances.my_study_id == my_study['id']
+                my_study['statuses'] = jsonable_encoder(
+                db.query(Statuses).filter(
+                    Statuses.my_study_id == my_study['id']
                 ).with_entities(
-                    Disturbances.id,
-                    Disturbances.type,
-                    Disturbances.count,
-                    Disturbances.time,
+                    Statuses.id,
+                    Statuses.type,
+                    Statuses.count,
+                    Statuses.time,
                 ).all()
             )
             return jsonable_encoder(data)
