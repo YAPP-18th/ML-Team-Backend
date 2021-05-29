@@ -48,7 +48,7 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
             ).first()
 
             if data:
-                return jsonable_encoder(data)
+                return [jsonable_encoder(data)]
             else:
                 raise NoSuchElementException(message='not found')
 

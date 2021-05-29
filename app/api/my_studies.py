@@ -48,7 +48,7 @@ def get_my_studies(date: str, user_id: int, db: Session = Depends(get_db)):
     except NoSuchElementException:
         return JSONResponse(
             status_code = status.HTTP_200_OK,
-            content     = {'data': ''}
+            content     = {'data': []}
         )
     
     except Exception as error:

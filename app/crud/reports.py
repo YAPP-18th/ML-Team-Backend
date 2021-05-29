@@ -3,7 +3,7 @@ from sqlalchemy       import and_, func
 from sqlalchemy.orm   import Session
 from fastapi.encoders import jsonable_encoder
 
-from app.models       import Reports, Disturbances
+from app.models       import Reports, Statuses
 from app.schemas      import ReportsCreate, ReportsUpdate
 from app.crud.base    import CRUDBase
 from app.errors       import NoSuchElementException
@@ -19,8 +19,8 @@ class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
             self.model.user_id == user_id,
             self.model.date    == date
         )).outerjoin(
-            Disturbances,
-            Disturbances.report_id == self.model.id
+            Statuses,
+            Statuses.report_id == self.model.id
         ).with_entities(
             self.model.id,
             self.model.date,
@@ -28,20 +28,20 @@ class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
             self.model.concentration,
             self.model.total_time,
             self.model.total_star_count,
-            func.count(Disturbances.count).label('total_disturbance_counts')
+            func.count(Statuses.count).label('total_status_counts')
         ).group_by(self.model.id).first()
 
         if instance:
-            report       = jsonable_encoder(instance)
-            disturbances = db.query(Disturbances).filter(
-                Disturbances.report_id == report['id']
+            report   = jsonable_encoder(instance)
+            statuses = db.query(Statuses).filter(
+                Statuses.report_id == report['id']
             ).with_entities(
-                Disturbances.type,
-                func.count(Disturbances.count).label('total_count'),
-                func.sum(Disturbances.time).label('total_time')
-            ).group_by(Disturbances.type).all()
+                Statuses.type,
+                func.count(Statuses.count).label('total_count'),
+                func.sum(Statuses.time).label('total_time')
+            ).group_by(Statuses.type).all()
 
-            report['disturbances'] = jsonable_encoder(disturbances)
+            report['statuses'] = jsonable_encoder(statuses)
             return report
         else:
             raise NoSuchElementException(message='not found')
@@ -85,9 +85,6 @@ class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
             if instance:
                 instance.total_time += total_time
                 db.commit()
-            else:
-                # Not Found
-                pass
 
         except:
             raise Exception
