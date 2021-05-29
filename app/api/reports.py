@@ -45,10 +45,12 @@ def get_report(date: str, user_id: str, db: Session=Depends(get_db)):
             content     = {'data': data}
         )
 
-    except NoSuchElementException:
+    except NoSuchElementException as element_err:
+        message = element_err.message
+        detail  = get_detail(param='database', field='report', message=message, err='database')
         return JSONResponse(
-            status_code = status.HTTP_200_OK,
-            content     = {'data': ''}
+            status_code = status.HTTP_404_NOT_FOUND,
+            content     = {'detail': detail}
         )
 
     except Exception as error:

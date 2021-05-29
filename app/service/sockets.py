@@ -8,7 +8,7 @@ from app.crud               import (
                                 study_rooms,
                                 reports,
                                 my_studies,
-                                disturbances
+                                statuses
                             )
 from app.database           import SessionLocal
 
@@ -93,7 +93,7 @@ async def leaveRoom(sid, room_id, db: Session = db):
         - report_id, my_study_id는 이미 글로벌하게 clients 객체에 저장되어 있다.
         """
 
-        # disturbances.create(db, disturbances) > disturbances 부분이 Redis에서 get 한 Array[JSON]
+        # statuses.create(db, disturbances) > disturbances 부분이 Redis에서 get 한 Array[JSON]
 
         study_rooms.leave(db, room_id=room_id)
         sio.leave_room(sid=sid, room=room_id, namespace=namespace_url)

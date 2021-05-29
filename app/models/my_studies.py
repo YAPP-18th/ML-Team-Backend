@@ -21,4 +21,4 @@ class MyStudies(Base):
     study_room_id = Column(UUID(as_uuid=True), ForeignKey('study_rooms.study_room_id', ondelete='CASCADE'))
     report        = relation('Reports', back_populates='my_studies')
     study_room    = relation('StudyRooms', back_populates='my_study')
-    disturbance   = relation('Disturbances', back_populates='my_study')
+    status        = relation('Statuses', back_populates='my_study')

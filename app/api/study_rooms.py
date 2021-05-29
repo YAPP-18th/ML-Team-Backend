@@ -59,7 +59,7 @@ def get_study_room(room_id: str, db: Session = Depends(get_db)):
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
 
     except NoSuchElementException:
-        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': []})
 
     except Exception as error:
         print(traceback.print_exc())
@@ -180,7 +180,7 @@ def get_study_rooms(
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
 
     except NoSuchElementException:
-        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': []})
 
     except Exception as error:
         print(traceback.print_exc())

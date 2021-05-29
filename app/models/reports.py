@@ -20,4 +20,4 @@ class Reports(Base):
     user_id           = Column(Integer(), ForeignKey('users.user_id', ondelete='CASCADE'))
     user              = relation('User', back_populates='reports')
     my_studies        = relation('MyStudies', back_populates='report')
-    total_disturbance = relation('Disturbances', back_populates='report')
+    total_status      = relation('Statuses', back_populates='report')

@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy              import Column, Integer, Enum, String
+from sqlalchemy              import Column, Integer, Enum, String, JSON
 from sqlalchemy.orm          import relation
 from sqlalchemy.dialects.postgresql import JSON
 
