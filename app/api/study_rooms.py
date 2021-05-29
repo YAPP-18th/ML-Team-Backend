@@ -26,7 +26,8 @@ from app.schemas             import (
                                 QueryNeedyStudyRoomHandling,
                                 MethodNotAllowedHandling,
                                 NoEmptyRoomHandling,
-                                ForbiddenUserHandling
+                                ForbiddenUserHandling,
+                                ForbiddenPasswordHandling
                                 )                                
 from app.errors              import (
                                 get_detail,
@@ -76,6 +77,10 @@ def get_study_room(room_id: str, db: Session = Depends(get_db)):
             "model": SuccessResponseBase,
             "description": "스터디룸 수정 성공"
         },
+        403: {
+            "model": ForbiddenUserHandling,
+            "description": "본인이 만들지 않은 방을 수정하려는 경우"
+        },
         404: {
             "model": NotFoundStudyRoomHandling,
             "description": "수정을 시도한 스터디룸이 이미 존재하지 않는 경우"
@@ -100,6 +105,11 @@ def update_study_room(room_id: str, room_info: StudyRoomsUpdate, db: Session = D
         study_rooms.update(db, room_id, room_info)
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
 
+    except ForbiddenException as forbidden_err:
+        message = forbidden_err.message
+        detail  = get_detail(param='database', field='user', message=message, err='invalid')
+        return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={'detail': detail})
+
     except InvalidArgumentException as argument_err:
         message = argument_err.message
         detail  = get_detail(param='body', field='password', message=message, err='value_error')
@@ -122,6 +132,10 @@ def update_study_room(room_id: str, room_info: StudyRoomsUpdate, db: Session = D
             "model": SuccessResponseBase,
             "description": "스터디룸 삭제 성공"
         },
+        403: {
+            "model": ForbiddenUserHandling,
+            "description": "본인이 만들지 않은 방을 삭제하려는 경우"
+        },
         404: {
             "model": NotFoundStudyRoomHandling,
             "description": "삭제를 시도한 스터디룸이 이미 존재하지 않는 경우"
@@ -136,10 +150,15 @@ def update_study_room(room_id: str, room_info: StudyRoomsUpdate, db: Session = D
         }
     }
 )
-def delete_study_room(room_id: str, db: Session = Depends(get_db)):
+def delete_study_room(user_id: int, room_id: str, db: Session = Depends(get_db)):
     try:
-        study_rooms.remove(db, room_id)
+        study_rooms.remove(db, room_id, user_id)
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
+
+    except ForbiddenException as forbidden_err:
+        message = forbidden_err.message
+        detail  = get_detail(param='database', field='user', message=message, err='invalid')
+        return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={'detail': detail})
 
     except NoSuchElementException as element_err:
         message = element_err.message
@@ -236,7 +255,7 @@ def create_study_room(room_info: StudyRoomsCreate, db: Session = Depends(get_db)
             "description": "스터디룸 생성 성공"
         },
         403: {
-            "model": ForbiddenUserHandling,
+            "model": ForbiddenPasswordHandling,
             "description": "비공개 방의 비밀번호 오입력 한 경우"
         },
         404: {

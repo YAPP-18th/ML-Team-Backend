@@ -34,13 +34,15 @@ class StudyRoomsCreate(StudyRoomsBase):
 class StudyRoomsUpdate(StudyRoomsBase):
     title: Optional[str]
     is_public: Optional[bool]
+    owner_id: int
 
     class Config:
         schema_extra = {
             'example': {
                 'description': '매일 매일 캠 스터디 가능하신 분들만!',
                 'is_public': False,
-                'password': 'TestPassword!234'
+                'password': 'TestPassword!234',
+                'owner_id': 1
             }
         } 
 
