@@ -13,5 +13,6 @@ from app.schemas.study_rooms.handling import (
                                         BodyNeedyStudyRoomHandling,
                                         QueryNeedyStudyRoomHandling,
                                         NoEmptyRoomHandling,
+                                        ForbiddenPasswordHandling,
                                         ForbiddenUserHandling
                                         )

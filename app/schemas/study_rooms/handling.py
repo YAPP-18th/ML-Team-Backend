@@ -107,7 +107,7 @@ class NoEmptyRoomHandling(ErrorResponseBase):
         }    
 
 
-class ForbiddenUserHandling(ErrorResponseBase):
+class ForbiddenPasswordHandling(ErrorResponseBase):
     class Config:
         schema_extra = {
             'example': {
@@ -122,4 +122,22 @@ class ForbiddenUserHandling(ErrorResponseBase):
                     }
                 ]
             }
-        }        
+        }   
+
+
+class ForbiddenUserHandling(ErrorResponseBase):
+    class Config:
+        schema_extra = {
+            'example': {
+                "detail": [
+                    {
+                        "loc": [
+                            "database",
+                            "user"
+                        ],
+                        "msg": "forbidden",
+                        "type": "invalid"
+                    }
+                ]
+            }
+        }           

@@ -108,24 +108,32 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
                 raise InvalidArgumentException(message='field required')
                 
             update_data = room_info.dict(exclude_none=True)
-            data = db.query(self.model).filter(self.model.id == UUID(room_id)).update(update_data)
+            data = db.query(self.model).filter(and_(
+                self.model.id == UUID(room_id),
+                self.model.owner_id == room_info.owner_id
+            )).update(update_data)
+
             if data:
                 db.commit()
             else:
-                raise NoSuchElementException(message='not found')    
+                raise ForbiddenException(message='forbidden')    
 
         except ValueError:
             raise NoSuchElementException(message='not found')
 
 
-    def remove(self, db: Session, room_id: str):
+    def remove(self, db: Session, room_id: str, user_id: int):
         try:
-            data = db.query(self.model).filter(self.model.id == UUID(room_id)).first()
+            data = db.query(self.model).filter(and_(
+                self.model.id       == UUID(room_id),
+                self.model.owner_id == user_id
+            )).first()
+
             if data:
                 db.delete(data)
                 db.commit()
             else:
-                raise NoSuchElementException(message='not found')
+                raise ForbiddenException(message='forbidden')
 
         except ValueError:
             raise NoSuchElementException(message='not found')
