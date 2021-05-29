@@ -11,10 +11,15 @@ from app.core                       import (
                                         develop_settings,
                                         deploy_settings
                                         )
-from app.service                    import sio
-
+from app.service                    import StudyNamespace
 
 server  = FastAPI(title=common_settings.PROJECT_NAME)
+sio     = socketio.AsyncServer(
+    async_mode           = 'asgi',
+    cors_allowed_origins = '*',
+    debug                = True
+)
+sio.register_namespace(StudyNamespace(sio, '/study'))
 sio_app = socketio.ASGIApp(socketio_server=sio, other_asgi_app=server)
 
 server.add_middleware(
@@ -39,6 +44,6 @@ if __name__ == "__main__":
         host         = "0.0.0.0",
         port         = 8000,
         reload       = True,
-        ssl_keyfile  = '/etc/letsencrypt/live/api.studeep.com/privkey.pem',
-        ssl_certfile =' /etc/letsencrypt/live/api.studeep.com/fullchain.pem'
+        # ssl_keyfile  = '/etc/letsencrypt/live/api.studeep.com/privkey.pem',
+        # ssl_certfile =' /etc/letsencrypt/live/api.studeep.com/fullchain.pem'
     )

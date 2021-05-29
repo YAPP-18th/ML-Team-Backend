@@ -1,5 +1,5 @@
 from datetime         import datetime
-from sqlalchemy       import and_, func
+from sqlalchemy       import and_, func, not_
 from sqlalchemy.orm   import Session
 from fastapi.encoders import jsonable_encoder
 
@@ -16,8 +16,9 @@ class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
         instance = db.query(
             self.model,
         ).filter(and_(
-            self.model.user_id == user_id,
-            self.model.date    == date
+            self.model.user_id    == user_id,
+            self.model.date       == date,
+            self.model.total_time != 0
         )).outerjoin(
             Statuses,
             Statuses.report_id == self.model.id
@@ -28,7 +29,9 @@ class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
             self.model.concentration,
             self.model.total_time,
             self.model.total_star_count,
-            func.count(Statuses.count).label('total_status_counts')
+            func.count(Statuses.count).filter(not_(
+                Statuses.type == 'rest'
+            )).label('total_status_counts')
         ).group_by(self.model.id).first()
 
         if instance:
@@ -69,7 +72,8 @@ class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
                 db.refresh(instance)
                 return jsonable_encoder(instance)
 
-        except:
+        except Exception as error:
+            print(error)
             raise Exception
 
         finally:

@@ -1,17 +1,19 @@
-from sqlalchemy     import and_
-from sqlalchemy.orm import Session
+from fastapi.encoders import jsonable_encoder
+from sqlalchemy       import and_
+from sqlalchemy.orm   import Session
 
-from app.crud.base  import CRUDBase
-from app.models     import Statuses
-from app.schemas    import StatusCreate, StatusUpdate
+from app.crud.base    import CRUDBase
+from app.models       import Statuses
+from app.schemas      import StatusCreate, StatusUpdate
 
 class CRUDStatus(CRUDBase[Statuses, StatusCreate, StatusUpdate]):
-    def create(self, db: Session, statuses: list):
-        try: 
-            db.bulk_insert_mappings(self.model, statuses)
+    def create(self, db: Session, statuses: dict):
+        try:            
+            # instance = db.bulk_insert_mappings(self.model, statuses)
             db.commit()
             
-        except:
+        except Exception as error:
+            print(error)
             raise Exception
 
         finally:
@@ -48,6 +50,9 @@ class CRUDStatus(CRUDBase[Statuses, StatusCreate, StatusUpdate]):
                 db.add(instance)
 
             db.commit()
+            db.refresh(instance)
+
+            return jsonable_encoder(instance)
 
         except:
             raise Exception
