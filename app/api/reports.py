@@ -31,10 +31,6 @@ router = APIRouter()
             "model": GetReportReponse,
             "description": "레포트 조회 성공"
         },
-        404: {
-            "model": NotFoundReportHandling,
-            "description": "조회한 학습 레포트가 없는 경우"
-        },
         500: {
             "model": ErrorResponseBase,
             "description": "서버에서 잡지 못한 에러"
@@ -49,17 +45,10 @@ def get_report(date: str, user_id: str, db: Session=Depends(get_db)):
             content     = {'data': data}
         )
 
-    except NoSuchElementException as element_err:
-        message = element_err.message
-        detail  = get_detail(
-            param   = 'database',
-            field   = 'report',
-            message = message,
-            err     = 'database'
-        )
+    except NoSuchElementException:
         return JSONResponse(
-            status_code = status.HTTP_404_NOT_FOUND,
-            content     = {'detail': detail}
+            status_code = status.HTTP_200_OK,
+            content     = {'data': ''}
         )
 
     except Exception as error:

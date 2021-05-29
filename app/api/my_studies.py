@@ -31,10 +31,6 @@ router = APIRouter()
             "model": GetMyStudiesResponse,
             "description": "마이스터디 조회 성공"
         },
-        404: {
-            "model": NotFoundMyStudiesHandling,
-            "description": "조회한 마이 스터디가 없는 경우"
-        },
         500: {
             "model": ErrorResponseBase,
             "description": "서버에서 잡지 못한 에러"
@@ -49,17 +45,10 @@ def get_my_studies(date: str, user_id: int, db: Session = Depends(get_db)):
             content     = {'data': data}
         )
 
-    except NoSuchElementException as element_err:
-        message = element_err.message
-        detail  = get_detail(
-            param   = 'database',
-            field   = 'my studies',
-            message = message,
-            err     = 'database'
-        )
+    except NoSuchElementException:
         return JSONResponse(
-            status_code = status.HTTP_404_NOT_FOUND,
-            content     = {'detail': detail}
+            status_code = status.HTTP_200_OK,
+            content     = {'data': ''}
         )
     
     except Exception as error:

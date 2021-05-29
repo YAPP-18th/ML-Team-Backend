@@ -47,10 +47,6 @@ router = APIRouter()
             "model": GetStudyRoomResponse,
             "description": "스터디룸 조회 성공"
         },
-        404: {
-            "model": NotFoundStudyRoomHandling,
-            "description": "조회한 스터디룸이 존재하지 않는 경우"
-        },
         500: {
             "model": ErrorResponseBase,
             "description": "서버에서 잡지 못한 에러"
@@ -62,10 +58,8 @@ def get_study_room(room_id: str, db: Session = Depends(get_db)):
         data = study_rooms.get(db, room_id)
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
 
-    except NoSuchElementException as element_err:
-        message = element_err.message
-        detail  = get_detail(param='database', field='study room', message=message, err='database')
-        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
+    except NoSuchElementException:
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
 
     except Exception as error:
         print(traceback.print_exc())
@@ -164,10 +158,6 @@ def delete_study_room(room_id: str, db: Session = Depends(get_db)):
             "model": GetStudyRoomsResponse,
             "description": "스터디룸 조희 성공"
         },
-        404: {
-            "model": NotFoundStudyRoomHandling,
-            "description": "조회할 스터디룸이 존재하지 않는 경우"
-        },
         422: {
             "model": QueryNeedyStudyRoomHandling,
             "description": "쿼리 파라미터를 제대로 전달하지 않은 경우"
@@ -189,10 +179,8 @@ def get_study_rooms(
         data = study_rooms.get_multi(db, skip, limit, owner_id, option)
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': data})
 
-    except NoSuchElementException as element_err:
-        message = element_err.message
-        detail  = get_detail(param='database', field='study room', message=message, err='database')
-        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={'detail': detail})
+    except NoSuchElementException:
+        return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
 
     except Exception as error:
         print(traceback.print_exc())
