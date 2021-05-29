@@ -11,10 +11,15 @@ from app.core                       import (
                                         develop_settings,
                                         deploy_settings
                                         )
-from app.service                    import sio
-
+from app.service                    import StudyNamespace
 
 server  = FastAPI(title=common_settings.PROJECT_NAME)
+sio     = socketio.AsyncServer(
+    async_mode           = 'asgi',
+    cors_allowed_origins = '*',
+    debug                = True
+)
+sio.register_namespace(StudyNamespace(sio, '/study'))
 sio_app = socketio.ASGIApp(socketio_server=sio, other_asgi_app=server)
 
 server.add_middleware(
