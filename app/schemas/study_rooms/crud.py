@@ -8,6 +8,7 @@ from app.models import Style
 class StudyRoomsBase(BaseModel):
     description: Optional[str]
     password: Optional[str]
+    owner_id: int
 
 
 class StudyRoomsCreate(StudyRoomsBase):
@@ -16,7 +17,6 @@ class StudyRoomsCreate(StudyRoomsBase):
     is_public: bool
     current_join_counts: int = 0
     created_at: Optional[datetime]
-    owner_id: int
 
     class Config:
         schema_extra = {
@@ -34,7 +34,6 @@ class StudyRoomsCreate(StudyRoomsBase):
 class StudyRoomsUpdate(StudyRoomsBase):
     title: Optional[str]
     is_public: Optional[bool]
-    owner_id: int
 
     class Config:
         schema_extra = {
@@ -52,6 +51,7 @@ class StudyRoomJoin(StudyRoomsBase):
     class Config:
         schema_extra = {
             'example': {
+                'owner_id': '1',
                 'password': 'TestPassword!234'
             }
         } 

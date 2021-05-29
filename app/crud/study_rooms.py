@@ -144,25 +144,27 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
             # if not room_id:
             #     raise NoSuchElementException(message='not found')
             data = db.query(self.model).filter(self.model.id == UUID(room_id)).first()
-            study_room = jsonable_encoder(data)
-            if study_room:
-                if study_room['current_join_counts'] >= MAX_CAPACITY:
-                    raise RequestConflictException(message='no empty')
+
+            if not data.owner_id == room_info.owner_id:
+                study_room = jsonable_encoder(data)
+                if study_room:
+                    if study_room['current_join_counts'] >= MAX_CAPACITY:
+                        raise RequestConflictException(message='no empty')
                 
-                if study_room['is_public']:
-                   if room_info.password:
-                       raise InvalidArgumentException(message='field not required')
+                    if study_room['is_public']:
+                        if room_info.password:
+                            raise InvalidArgumentException(message='field not required')
+                    else:
+                        if not room_info.password:
+                            raise InvalidArgumentException(message='field required')
+                        elif room_info.password != study_room['password']:
+                            raise ForbiddenException(message='forbidden')
+
+                    data.current_join_counts += 1
+                    db.commit()
+
                 else:
-                    if not room_info.password:
-                        raise InvalidArgumentException(message='field required')
-                    elif room_info.password != study_room['password']:
-                        raise ForbiddenException(message='forbidden')
-
-                data.current_join_counts += 1
-                db.commit()
-
-            else:
-                raise NoSuchElementException(message='not found')
+                    raise NoSuchElementException(message='not found')
 
         except ValueError:
             raise NoSuchElementException(message='not found')
