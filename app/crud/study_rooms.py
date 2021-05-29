@@ -133,8 +133,8 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
 
     def join(self, db: Session, room_id: str, room_info: StudyRoomJoin):
         try:
-            if not room_id:
-                raise NoSuchElementException(message='not found')
+            # if not room_id:
+            #     raise NoSuchElementException(message='not found')
             data = db.query(self.model).filter(self.model.id == UUID(room_id)).first()
             study_room = jsonable_encoder(data)
             if study_room:
@@ -176,6 +176,44 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
 
         finally:
             db.close()
+
+    
+    def current_check(self, db: Session, user_id: int):
+        try:
+            """
+            TODO
+            - Redis에 접근해서 user_id가 존재하는지 확인한다.
+            - 만약 있을 경우 공부 중이던 사람이기 때문에 ABNORMAL의 TIMESTAMP를 확인한다.
+            - 만약 5분이 지난 경우 삭제하고 Redis Initialize를 종료한다.
+              이때 해당 사용자가 포함되어 있던 study_room의 current_join_count도 차감한다.
+              이를 수행하기 위해 Redis에 room_id 또한 포함되어야 할 것으로 판단된다.
+            - 5분이 지나지 않은 경우 재접속 할 것인지 묻는다.
+            - user_id가 존재하지 않는 경우와 5분이 지난 경우 200 status_code로 응답한다.
+            - 만약 5분이 지나지 않아서 재접속 여부를 물어봐야 할 경우 409 conflict 응답한다.
+            """
+
+            pass
+
+        except Exception:
+            raise Exception
+
+
+    def re_join(self, db: Session, user_id: int, is_re_joined: bool):
+        try:
+            """
+            TODO
+            - current_check 엔드포인트에 이어서 만약 재접속하겠다고 한 경우
+              data에 해당 room_id를 포함해서 보내준다.
+              페이지 랜더링을 통해 해당 방으로 가야하기 때문이다.
+            - 만약 재접속하지 않겠다고 한 경우 data에 빈 문자열을 보내준다.
+            - 그리고 재접속하지 않겠다고 한 경우 해당 마이스터디 테이블을 삭제한다.
+            - 재접속과 그렇지 않은 경우 모두 status_code 200으로 응답한다.
+            """
+        
+            pass
+
+        except Exception:
+            raise Exception
 
 
 study_rooms = CRUDStudyRoom(StudyRooms)

@@ -1,14 +1,14 @@
 from uuid             import UUID
 from datetime         import datetime
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy       import and_
+from sqlalchemy       import and_, func
 from sqlalchemy.orm   import Session
 
 from app.crud.base    import CRUDBase
 from app.models       import MyStudies, Reports, Statuses, StudyRooms
 from app.schemas      import MyStudiesCreate, MyStudiesUpdate
 from app.errors       import NoSuchElementException
-from app.core         import time_settings
+from app.core         import time_settings, my_studies_settings
 
 
 class CRUDMyStudy(CRUDBase[MyStudies, MyStudiesCreate, MyStudiesUpdate]):
@@ -74,13 +74,23 @@ class CRUDMyStudy(CRUDBase[MyStudies, MyStudiesCreate, MyStudiesUpdate]):
         try:
             instance = db.query(self.model).filter(
                 self.model.id == id
-            ).first() 
+            ).first()
+
+            statuses = db.query(Statuses).filter(
+                Statuses.my_study_id == instance.id
+            ).with_entities(
+                func.sum(Statuses.time).label('total_time')
+            ).first()
             
+
             if instance:
+
+                print(jsonable_encoder(instance))
                 instance.ended_at   = datetime.utcnow() + time_settings.KST
                 instance.total_time = (
-                    instance.ended_at - instance.started_at
-                ).seconds
+                    instance.ended_at - \
+                    instance.started_at
+                ).seconds - jsonable_encoder(statuses)['total_time']
                 db.commit()
                 db.refresh(instance)
                 return jsonable_encoder(instance)
