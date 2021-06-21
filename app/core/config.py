@@ -51,7 +51,7 @@ class UserSettings(BaseSettings):
     API_USER: str = '/user'
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ALGORITHM = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES = 30000
+    ACCESS_TOKEN_EXPIRE_MINUTES = 300000
 
 
 class StudyRoomSettings(BaseSettings):
