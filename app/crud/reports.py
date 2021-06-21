@@ -11,7 +11,7 @@ from app.core         import time_settings
 
 
 class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
-    def get(self, db: Session, user_id: str, date: str):
+    def get(self, db: Session, user_id: int, date: str):
         date = datetime.strptime(date, '%Y-%m-%d')
         instance = db.query(
             self.model,
@@ -56,7 +56,7 @@ class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
             if (today.hour >= 0) and (today.hour < 5):
                 date = datetime(today.year, today.month, today.day - 1)
             else:
-                date = date = datetime(today.year, today.month, today.day)
+                date = datetime(today.year, today.month, today.day)
             
             instance = db.query(self.model).filter(and_(
                 self.model.user_id == user_id,

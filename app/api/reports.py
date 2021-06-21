@@ -37,7 +37,7 @@ router = APIRouter()
         }
     }
 )
-def get_report(date: str, user_id: str, db: Session=Depends(get_db)):
+def get_report(date: str, user_id: int, db: Session=Depends(get_db)):
     try:
         data = reports.get(db, user_id, date)
         return JSONResponse(
