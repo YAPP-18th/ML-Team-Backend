@@ -16,7 +16,10 @@ from app.errors import get_detail
 
 def parsing_token_decorator(func):
     def wrapper(token: str, **kwargs):
-        return func(token.split(" ")[1], **kwargs)
+        try:
+            return func(token.split(" ")[1], **kwargs)
+        except:
+            raise JWTError()
 
     return wrapper
 
