@@ -75,6 +75,10 @@ class SocketSettings(BaseSettings):
 class TimeSettings(BaseSettings):
     KST = timedelta(hours=9)
 
+class RedisSettings(BaseSettings):
+    HOST = "https://api.studeep.com"
+    PORT = 6000
+
 
 common_settings      = CommonSettings()
 develop_settings     = DevelopSettings()
@@ -85,3 +89,4 @@ my_studies_settings  = MyStudySettings()
 report_settings      = ReportSettings()
 socket_settings      = SocketSettings()
 time_settings        = TimeSettings()
+redis_settings       = RedisSettings()

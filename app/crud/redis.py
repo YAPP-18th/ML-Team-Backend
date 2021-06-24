@@ -4,7 +4,7 @@ import redis
 from datetime import timedelta
 from collections.abc import MutableMapping
 
-from app.core import user_settings
+from app.core import redis_settings,user_settings
 
 
 def __setflat_skeys__(
@@ -59,7 +59,7 @@ def __generate_value_string__(user_id, user_monitoring, disturb_info=None):
 
 
 class redis_function:
-    redis = redis.Redis(port=6000, host='localhost')
+    redis = redis.Redis(port=redis_settings.PORT, host=redis_settings.HOST)
 
     def __del__(self):
         self.redis.close()
