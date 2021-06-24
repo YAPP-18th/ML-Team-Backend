@@ -39,8 +39,8 @@ class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
             statuses = db.query(Statuses).filter(
                 Statuses.report_id == report['id']
             ).with_entities(
-                Statuses.type,
-                func.count(Statuses.count).label('total_count'),
+                Statuses.type.label('name'),
+                func.count(Statuses.count).label('value'),
                 func.sum(Statuses.time).label('total_time')
             ).group_by(Statuses.type).all()
 
