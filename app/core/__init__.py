@@ -7,5 +7,6 @@ from app.core.config import (
                         my_studies_settings,
                         report_settings,
                         socket_settings,
-                        time_settings
+                        time_settings,
+                        redis_settings
                         )   
