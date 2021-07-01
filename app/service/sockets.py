@@ -229,8 +229,6 @@ class StudyNamespace(socketio.AsyncNamespace):
             - Redis에 이미 해당 사용자의 id가 저장되어 있기 때문에 clients 등을 통해 user_id에 접근하여
               발생 시점의 timstamp와 함께 ABNORMAL 타입을 저장한다.
             """
-            if sid in clients:
-                clients.pop(sid)
             print('disconnect')
             study_rooms.leave(self.db, room_id=clients[sid]['room_id'])
             self.leave_room(sid=sid, room=clients[sid]['room_id'], namespace=self.namespace)
@@ -244,8 +242,9 @@ class StudyNamespace(socketio.AsyncNamespace):
                 id         = clients[sid]['report_id'],
                 total_time = my_study['total_time']
             )
-            
 
+            clients.pop(sid)
+            print(f'sid: {sid}, clients: {clients} ')
             print('disconnect success')
 
         except NoSuchElementException:
