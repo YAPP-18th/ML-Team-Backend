@@ -3,7 +3,7 @@ from datetime         import datetime
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy       import and_, func
 from sqlalchemy.orm   import Session
-from sqlalchemy.sql.base import Executable
+from sqlalchemy.exc   import IntegrityError
 
 from app.crud.base    import CRUDBase
 from app.models       import MyStudies, Reports, Statuses, StudyRooms
@@ -54,6 +54,9 @@ class CRUDMyStudy(CRUDBase[MyStudies, MyStudiesCreate, MyStudiesUpdate]):
 
     def create(self, db: Session, room_id: str, report_id: int):
         try:
+            if not room_id:
+                raise NoSuchElementException(message='not found')
+
             instance = self.model(
                 study_room_id = UUID(room_id),
                 report_id     = report_id,
@@ -64,8 +67,14 @@ class CRUDMyStudy(CRUDBase[MyStudies, MyStudiesCreate, MyStudiesUpdate]):
             db.refresh(instance)
             return jsonable_encoder(instance)
 
-        except:
-            raise Exception
+        except AttributeError:
+            raise NoSuchElementException(message='not found')
+
+        except ValueError:
+            raise NoSuchElementException(message='not found')
+
+        except IntegrityError:
+            raise NoSuchElementException(message='not found') 
 
         finally:
             db.close()

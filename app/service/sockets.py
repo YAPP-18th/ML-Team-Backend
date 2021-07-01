@@ -1,14 +1,14 @@
 import socketio
 import traceback
 
-
-from app.crud               import (
-                                study_rooms,
-                                reports,
-                                my_studies,
-                                statuses
-                            )
-from app.database           import SessionLocal
+from app.crud     import (
+                    study_rooms,
+                    reports,
+                    my_studies,
+                    statuses
+                  )
+from app.database import SessionLocal
+from app.errors   import NoSuchElementException, RequestInvalidException
 
 
 clients = dict()
@@ -23,8 +23,6 @@ class StudyNamespace(socketio.AsyncNamespace):
 
     async def on_connect(self, sid, environ, auth):
         try:
-            print(sid)
-            print('connect')
             instance = reports.get_or_create(
                 db      = self.db,
                 user_id = auth['user_id']
@@ -34,27 +32,16 @@ class StudyNamespace(socketio.AsyncNamespace):
                 'room_id': '',
                 'report_id':  instance['id'],
                 'my_study_id': '',
-                # 're_joined': False
             }
-
-            # if not clients:
-            #     """
-            #     TODO
-            #     - Redis Initialize
-            #     """
-            #     # print('initial connect')
-
-            # else:
-            #     # print('re-connect')
-            #     """
-            #     TODO
-            #     - 정상적으로 다시 진입했기 때문에 Redis ABNORMAL 삭제
-            #     """
-            #     # self.clients['re_joined'] = False
 
             await self.emit(
                 'response',
-                {'message': 'connection'},
+                {
+                    'statusCode': 200,
+                    'message': 'SUCCESS',
+                    'eventName': 'connect',
+                    'data': {}
+                },
                 namespace = self.namespace
             )            
                 
@@ -63,16 +50,18 @@ class StudyNamespace(socketio.AsyncNamespace):
             print(traceback.print_exc())
             await self.emit(
                 'response',
-                {'message': f'server error {error}'},
+                {
+                    'statusCode': 500,
+                    'message': f'SERVER_ERROR_{error}',
+                    'eventName': 'connect',
+                    'data': {}
+                },
                 namespace = self.namespace
             )      
 
     
     async def on_joinRoom(self, sid, room_id):
-        try:
-            print('join')
-            print(clients)
-            
+        try:            
             self.enter_room(sid=sid, room=room_id, namespace=self.namespace)
             instance = my_studies.create(
                 db         = self.db,
@@ -83,17 +72,38 @@ class StudyNamespace(socketio.AsyncNamespace):
             clients[sid]['my_study_id'] = instance['id']
             await self.emit(
                 'response',
-                {'message': 'join success'},
+                {
+                    'statusCode': 200,
+                    'message': 'SUCCESS',
+                    'eventName': 'joinRoom',
+                    'dat': {}
+                },
                 room      = room_id,
                 namespace = self.namespace
             )
-        
+
+        except NoSuchElementException:
+            await self.emit(
+                'response',
+                {
+                    'statusCode': 404,
+                    'message': 'NOT_FOUND',
+                    'eventName': 'joinRoom',
+                    'data': {}
+                },
+                namespace = self.namespace
+            )     
+
         except Exception as error:
             print(traceback.print_exc())
             await self.emit(
                 'response',
-                {'message': f'server error {error}'},
-                room      = room_id,
+                {
+                    'statusCode': 500,
+                    'message': f'SERVER_ERROR_{error}',
+                    'eventName': 'joinRoom',
+                    'data': {}
+                },
                 namespace = self.namespace
             )     
 
@@ -111,38 +121,53 @@ class StudyNamespace(socketio.AsyncNamespace):
               이때 장점은 type과 time만 Redis에서 get 하면 된다는 점이다.
             - report_id, my_study_id는 이미 글로벌하게 clients 객체에 저장되어 있다.
             """
-
-            # disturbances.create(db, disturbances) > disturbances 부분이 Redis에서 get 한 Array[JSON]
-
-            study_rooms.leave(self.db, room_id=room_id)
-            self.leave_room(sid=sid, room=room_id, namespace=self.namespace)
-
-            instance = my_studies.update(
-                db = self.db,
-                id = clients[sid]['my_study_id']
-            )
-            reports.update(
-                db         = self.db,
-                id         = clients[sid]['report_id'],
-                total_time = instance['total_time']
-            )
             
-            clients.pop(sid)
-
             await self.emit(
                 'disconnect',
-                {'message': 'leave success'},
+                {
+                    'statusCode': 200,
+                    'message': 'SUCCESS',
+                    'eventName': 'leaveRoom',
+                    'data': {}
+                },
                 room      = room_id,
                 namespace = self.namespace
             )
             await self.disconnect(sid, namespace=self.namespace)
-            
+
+        except RequestInvalidException:
+            await self.emit(
+                'response',
+                {
+                    'statusCode': 400,
+                    'message': 'INVALID_REQUEST',
+                    'eventName': 'leaveRoom',
+                    'data': {}
+                }
+            )
+
+        except NoSuchElementException:
+            await self.emit(
+                'response',
+                {
+                    'statusCode': 404,
+                    'messgae': 'NOT_FOUND',
+                    'eventName': 'leaveRoom',
+                    'data': {}
+                },
+                namespace = self.namespace
+            )    
+
         except Exception as error:
             print(traceback.print_exc())
             await self.emit(
                 'response',
-                {'message': f'server error {error}'},
-                room      = room_id,
+                {
+                    'statusCode': 500,
+                    'message': f'SERVER_ERROR_{error}',
+                    'eventName': 'leaveRoom',
+                    'data': {}
+                },
                 namespace = self.namespace
             )
 
@@ -156,18 +181,16 @@ class StudyNamespace(socketio.AsyncNamespace):
             - 개별 사용자의 휴식이 다르기 때문에 Redis에 휴식에 대한 것도 저장 할 필요가 있어 보인다.
             """
             print('status', status)
-            statuses.update_or_create(
-                self.db,
-                status['type'],
-                status['time'],
-                clients[sid]['my_study_id'],
-                clients[sid]['report_id']
-            )
 
             await self.emit(
                 'response',
-                {'message': status['type']},
-                room      = status['room_id'],
+                {
+                    'statusCode': 200,
+                    'message': 'SUCCESS',
+                    'eventName': 'status',
+                    'data': status
+                },
+                room = clients[sid]['room_id'],
                 namespace = self.namespace
             )
 
@@ -175,8 +198,12 @@ class StudyNamespace(socketio.AsyncNamespace):
             print(traceback.print_exc())
             await self.emit(
                 'response',
-                {'message': f'server error {error}'},
-                room      = statuses['room_id'],
+                {
+                    'statusCode': 500,
+                    'message': f'SERVER_ERROR_{error}',
+                    'eventName': 'status',
+                    'data': {}
+                },
                 namespace = self.namespace
             )            
 
@@ -190,13 +217,8 @@ class StudyNamespace(socketio.AsyncNamespace):
             - Redis에 이미 해당 사용자의 id가 저장되어 있기 때문에 clients 등을 통해 user_id에 접근하여
               발생 시점의 timstamp와 함께 ABNORMAL 타입을 저장한다.
             """
-            # if self.clients:
-                # Redis 저장 부분
-            print('disconnect')
-
             study_rooms.leave(self.db, room_id=clients[sid]['room_id'])
             self.leave_room(sid=sid, room=clients[sid]['room_id'], namespace=self.namespace)
-
 
             my_study = my_studies.update(
                 db = self.db,
@@ -210,7 +232,15 @@ class StudyNamespace(socketio.AsyncNamespace):
             
             clients.pop(sid)
 
-            print(clients)
-
         except Exception as error:
             print(traceback.print_exc())
+            await self.emit(
+                'response',
+                {
+                    'statusCode': 500,
+                    'message': f'SERVER_ERROR_{error}',
+                    'eventName': 'disconnect',
+                    'data' : {}
+                },
+                namespace = self.namespace
+            )

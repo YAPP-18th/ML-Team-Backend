@@ -19,6 +19,7 @@ from app.errors       import (
                         NoSuchElementException,
                         InvalidArgumentException,
                         RequestConflictException,
+                        RequestInvalidException,
                         ForbiddenException
                         )
 from app.core         import time_settings
@@ -174,14 +175,25 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
 
     def leave(self, db: Session, room_id: str):
         try: 
+            if not room_id:
+                raise NoSuchElementException(message='not found')
+
+            if self.model.current_join_counts < 1:
+                raise RequestInvalidException(message='invalid request')
+
             db.query(self.model).filter(self.model.id == UUID(room_id)).update(
                 {'current_join_counts': self.model.current_join_counts  - 1} 
             )
             db.commit()
 
-        except Exception as error:
-            # TODO: 더 구체적인 에러 핸들링 필요 ex. Positive Integer(MIN_CAPACITY)
-            raise Exception
+        except AttributeError:
+            raise NoSuchElementException(message='not found')
+
+        except ValueError:
+            raise NoSuchElementException(message='not found')
+
+        except IntegrityError:
+            raise NoSuchElementException(message='not found')
 
         finally:
             db.close()
