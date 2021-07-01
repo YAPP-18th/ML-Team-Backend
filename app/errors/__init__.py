@@ -4,5 +4,6 @@ from app.errors.customs     import (
                             NoSuchElementException,
                             InvalidArgumentException,
                             RequestConflictException,
+                            RequestInvalidException,
                             ForbiddenException
                             )
