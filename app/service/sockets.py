@@ -23,6 +23,7 @@ class StudyNamespace(socketio.AsyncNamespace):
 
     async def on_connect(self, sid, environ, auth):
         try:
+            print('connect')
             instance = reports.get_or_create(
                 db      = self.db,
                 user_id = auth['user_id']
@@ -43,7 +44,9 @@ class StudyNamespace(socketio.AsyncNamespace):
                     'data': {}
                 },
                 namespace = self.namespace
-            )            
+            )      
+
+            print('connect success')      
                 
 
         except Exception as error:
@@ -62,6 +65,7 @@ class StudyNamespace(socketio.AsyncNamespace):
     
     async def on_joinRoom(self, sid, room_id):
         try:            
+            print('join room')
             self.enter_room(sid=sid, room=room_id, namespace=self.namespace)
             instance = my_studies.create(
                 db         = self.db,
@@ -82,7 +86,10 @@ class StudyNamespace(socketio.AsyncNamespace):
                 namespace = self.namespace
             )
 
+            print('join room success')
+
         except NoSuchElementException:
+            print('not found')
             await self.emit(
                 'response',
                 {
@@ -121,6 +128,7 @@ class StudyNamespace(socketio.AsyncNamespace):
               이때 장점은 type과 time만 Redis에서 get 하면 된다는 점이다.
             - report_id, my_study_id는 이미 글로벌하게 clients 객체에 저장되어 있다.
             """
+            print('leave room')
             
             await self.emit(
                 'disconnect',
@@ -135,7 +143,10 @@ class StudyNamespace(socketio.AsyncNamespace):
             )
             await self.disconnect(sid, namespace=self.namespace)
 
+            print('leave room success')
+
         except RequestInvalidException:
+            print('invalid request')
             await self.emit(
                 'response',
                 {
@@ -147,6 +158,7 @@ class StudyNamespace(socketio.AsyncNamespace):
             )
 
         except NoSuchElementException:
+            print('not found')
             await self.emit(
                 'response',
                 {
@@ -217,6 +229,9 @@ class StudyNamespace(socketio.AsyncNamespace):
             - Redis에 이미 해당 사용자의 id가 저장되어 있기 때문에 clients 등을 통해 user_id에 접근하여
               발생 시점의 timstamp와 함께 ABNORMAL 타입을 저장한다.
             """
+            if sid in clients:
+                clients.pop(sid)
+            print('disconnect')
             study_rooms.leave(self.db, room_id=clients[sid]['room_id'])
             self.leave_room(sid=sid, room=clients[sid]['room_id'], namespace=self.namespace)
 
@@ -230,7 +245,21 @@ class StudyNamespace(socketio.AsyncNamespace):
                 total_time = my_study['total_time']
             )
             
-            clients.pop(sid)
+
+            print('disconnect success')
+
+        except NoSuchElementException:
+            print('not found')
+            await self.emit(
+                'response',
+                {
+                    'statusCode': 404,
+                    'messgae': 'NOT_FOUND',
+                    'eventName': 'leaveRoom',
+                    'data': {}
+                },
+                namespace = self.namespace
+            )              
 
         except Exception as error:
             print(traceback.print_exc())

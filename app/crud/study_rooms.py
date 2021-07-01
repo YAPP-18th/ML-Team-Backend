@@ -177,12 +177,12 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
         try: 
             if not room_id:
                 raise NoSuchElementException(message='not found')
-
+            
             if self.model.current_join_counts < 1:
                 raise RequestInvalidException(message='invalid request')
 
             db.query(self.model).filter(self.model.id == UUID(room_id)).update(
-                {'current_join_counts': self.model.current_join_counts  - 1} 
+                {'current_join_counts': self.model.current_join_counts - 1} 
             )
             db.commit()
 
