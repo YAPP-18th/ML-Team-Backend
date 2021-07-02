@@ -1,4 +1,4 @@
-from datetime import time
+import time
 
 import redis
 from datetime import timedelta
@@ -59,7 +59,8 @@ def __generate_value_string__(user_id, user_monitoring, disturb_info=None):
 
 
 class redis_function:
-    redis = redis.Redis(port=redis_settings.PORT, host=redis_settings.HOST)
+    redis = redis.Redis(port=redis_settings.PORT, host=redis_settings.HOST, charset="utf-8", decode_responses=True)
+    # redis = redis.Redis(port=6000, host='localhost', charset="utf-8", decode_responses=True)
 
     def __del__(self):
         self.redis.close()
@@ -92,23 +93,36 @@ class redis_function:
         self.redis.set(last_access_key, disturb_time)
 
         if last_status != "study":
-            status_time = disturb_time - last_access
-
+            status_time = disturb_time - float(last_access)
+            print(status_time)
+            print(last_status)
             self.redis.incr(__generate_value_string__(user_id, last_status, 'count'), 1)
-            self.redis.incr(__generate_value_string__(user_id, last_status, 'sec'), status_time)
+            self.redis.incr(__generate_value_string__(user_id, last_status, 'sec'), int(status_time))
 
     def delete_user_study_info(self, user_id: str):
-        target_key = self.redis.keys(user_id + ':*')
-        self.redis.delete(target_key)
+        target_key = self.redis.keys(f"{user_id}:*")
+        for key in target_key:
+            self.redis.delete(key)
 
     def end_study(self, user_id: str):
+        self.add_current_log(user_id, "study", time.time())
+        result = self.get_user_all_info(user_id)
+        self.delete_user_study_info(user_id)
+
+        return result
+
+    def get_status_value(self, user_id: str, status: str):
+        return {
+            "count": self.redis.get(__generate_value_string__(user_id, status, 'count')),
+            "sec": self.redis.get(__generate_value_string__(user_id, status, 'sec'))
+        }
+
+    def get_user_all_info(self, user_id: str):
         study_room_id = self.redis.get(__generate_value_string__(user_id, "study_rooms"))
         sleep_values = self.get_status_value(user_id, "sleep")
         phone_values = self.get_status_value(user_id, "phone")
         await_values = self.get_status_value(user_id, "await")
         rest_values = self.get_status_value(user_id, "rest")
-
-        self.delete_user_study_info(user_id)
 
         return {
             "study_room_id": study_room_id,
@@ -118,8 +132,18 @@ class redis_function:
             "rest": rest_values
         }
 
-    def get_status_value(self, user_id: str, status: str):
-        return {
-            "count": self.redis.get(__generate_value_string__(user_id, status, 'count')),
-            "sec": self.redis.get(__generate_value_string__(user_id, status, 'sec'))
-        }
+
+if __name__ == "__main__":
+    r = redis_function()
+
+    r.start_study_init(1, "test")
+
+    time.sleep(3)
+    r.add_current_log(1, "phone", time.time())
+    time.sleep(4)
+    r.add_current_log(1, "sleep", time.time())
+    time.sleep(3)
+    r.add_current_log(1, "study", time.time())
+    r.add_current_log(1, "rest", time.time())
+
+    print(r.end_study(1))
