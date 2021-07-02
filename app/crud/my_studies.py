@@ -52,10 +52,36 @@ class CRUDMyStudy(CRUDBase[MyStudies, MyStudiesCreate, MyStudiesUpdate]):
         else:
             raise NoSuchElementException(message='not found')
 
+    def get_by_id(self, db: Session, my_study_id: int):
+        try:
+            data = db.query(self.model).filter(
+                self.model.id == my_study_id
+            ).outerjoin(
+                Reports,
+                Reports.id == self.model.report_id
+            ).with_entities(
+                self.model.id,
+                Reports.date.label('date'),
+                self.model.total_time
+            ).first()
+
+            return jsonable_encoder(data)
+
+        except ValueError:
+            raise NoSuchElementException(message='not found')
+
+        
+
     def create(self, db: Session, room_id: str, report_id: int):
         try:
             if not room_id:
                 raise NoSuchElementException(message='not found')
+
+            study_room = db.query(StudyRooms).filter(
+                StudyRooms.id == UUID(room_id)
+            ).first()
+
+            study_room.current_join_counts += 1
 
             instance = self.model(
                 study_room_id = UUID(room_id),
