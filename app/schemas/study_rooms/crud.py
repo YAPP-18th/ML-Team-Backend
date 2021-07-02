@@ -49,7 +49,7 @@ class StudyRoomsUpdate(StudyRoomsBase):
 
 
 class StudyRoomJoin(StudyRoomsBase):
-
+    user_id: int
     class Config:
         schema_extra = {
             'example': {

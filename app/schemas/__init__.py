@@ -24,7 +24,8 @@ from app.schemas.study_rooms import (
                                 QueryNeedyStudyRoomHandling,
                                 NoEmptyRoomHandling,
                                 ForbiddenUserHandling,
-                                ForbiddenPasswordHandling
+                                ForbiddenPasswordHandling,
+                                AlreadyJoinedHandling
                                 )
 from app.schemas.reports     import (
                                 ReportsCreate,

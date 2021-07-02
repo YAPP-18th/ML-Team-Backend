@@ -140,4 +140,21 @@ class ForbiddenUserHandling(ErrorResponseBase):
                     }
                 ]
             }
-        }           
+        }
+
+class AlreadyJoinedHandling(ErrorResponseBase):
+    class Config:
+        schema_extra = {
+            'example': {
+                "detail": [
+                    {
+                        "loc": [
+                            "database",
+                            "user"
+                        ],
+                        "msg": "Already Connect a Study-Room",
+                        "type": "invalid"
+                    }
+                ]
+            }
+        }                      
