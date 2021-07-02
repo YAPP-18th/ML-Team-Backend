@@ -28,10 +28,10 @@ def __setflat_skeys__(
             raise TypeError(f"Unsupported value type: {type(value)}")
 
 
-def study_room_starting(study_room_id):
+def study_room_starting():
     return {
         "status": "study",
-        "study_rooms": study_room_id,
+        "study_rooms": "",
         "last_access": 1,
         "sleep": {
             "count": 0,
@@ -71,12 +71,20 @@ class redis_function:
     def check_black_list(self, token: str):
         self.redis.exists(token)
 
-    def start_study_init(self, user_id: str, study_room_id: str):
-        __setflat_skeys__(self.redis, study_room_starting(study_room_id), user_id)
+    def start_study_init(self, user_id: str):
+        __setflat_skeys__(self.redis, study_room_starting(), user_id)
+
+    def set_study_room(self, user_id: str, study_room_id: str):
+        self.redis.set(__generate_value_string__(user_id, "study_rooms"), study_room_id)
 
     def get_user_study_info(self, user_id, user_monitoring, disturb_info=None):
         return self.redis.get(
             __generate_value_string__(user_id, user_monitoring, disturb_info)
+        )
+
+    def check_join(self, user_id: str):
+        return self.redis.get(
+            __generate_value_string__(user_id, 'study_rooms')
         )
 
     def add_current_log(self, user_id, disturb_type, disturb_time):
@@ -92,12 +100,13 @@ class redis_function:
 
         self.redis.set(last_access_key, disturb_time)
 
+        print(f"User(id : {user_id}) update status({last_status}-> {disturb_type}).")
+
         if last_status != "study":
             status_time = disturb_time - float(last_access)
-            print(status_time)
-            print(last_status)
             self.redis.incr(__generate_value_string__(user_id, last_status, 'count'), 1)
             self.redis.incr(__generate_value_string__(user_id, last_status, 'sec'), int(status_time))
+            print(f"Save Status Log({last_status} {int(status_time)}sec.)")
 
     def delete_user_study_info(self, user_id: str):
         target_key = self.redis.keys(f"{user_id}:*")
@@ -105,6 +114,9 @@ class redis_function:
             self.redis.delete(key)
 
     def end_study(self, user_id: str):
+        if not self.check_join(user_id):
+            return None
+
         self.add_current_log(user_id, "study", time.time())
         result = self.get_user_all_info(user_id)
         self.delete_user_study_info(user_id)
