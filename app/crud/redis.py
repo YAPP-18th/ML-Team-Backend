@@ -113,7 +113,7 @@ class redis_function:
         return {
             "study_room_id": study_room_id,
             "sleep": sleep_values,
-            "phone": phone_values,
+            "smartphone": phone_values,
             "await": await_values,
             "rest": rest_values
         }

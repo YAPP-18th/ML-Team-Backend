@@ -24,6 +24,7 @@ class CRUDStatus(CRUDBase[Statuses, StatusCreate, StatusUpdate]):
         self,
         db: Session,
         type: str,
+        cnt: int,
         time: int,
         my_study_id: int,
         report_id: int
@@ -36,13 +37,13 @@ class CRUDStatus(CRUDBase[Statuses, StatusCreate, StatusUpdate]):
             )).first()
             
             if instance:
-                instance.count += 1
+                instance.count += cnt
                 instance.time  += time
 
             else:
                 instance = self.model(
                     type        = type,
-                    count       = 1,
+                    count       = cnt,
                     time        = time,
                     my_study_id = my_study_id,
                     report_id   = report_id
