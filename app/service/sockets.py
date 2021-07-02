@@ -1,15 +1,19 @@
 import socketio
 import traceback
 
-from app.crud     import (
-                    study_rooms,
-                    reports,
-                    my_studies,
-                    statuses
-                  )
-from app.database import SessionLocal
-from app.errors   import NoSuchElementException, RequestInvalidException
+import time
 
+
+
+from app.crud               import (
+                                study_rooms,
+                                reports,
+                                my_studies,
+                                statuses,
+                                redis_function
+                            )
+from app.database           import SessionLocal
+from app.errors   import NoSuchElementException, RequestInvalidException
 
 clients = dict()
 
@@ -19,6 +23,7 @@ class StudyNamespace(socketio.AsyncNamespace):
         super(socketio.Namespace, self).__init__(namespace)
         self.sio     = sio
         self.db      = SessionLocal()
+        self.redis   = redis_function()
 
 
     async def on_connect(self, sid, environ, auth):
@@ -74,6 +79,9 @@ class StudyNamespace(socketio.AsyncNamespace):
             )
             clients[sid]['room_id']     = room_id
             clients[sid]['my_study_id'] = instance['id']
+            # redis table init
+            self.redis.start_study_init(user_id = clients['user_id'], study_room_id=room_id)
+            
             await self.emit(
                 'response',
                 {
@@ -194,6 +202,9 @@ class StudyNamespace(socketio.AsyncNamespace):
             """
             print('status', status)
 
+            self.redis.add_current_log(clients['user_id'], status, time.time())
+
+
             await self.emit(
                 'response',
                 {
@@ -232,6 +243,11 @@ class StudyNamespace(socketio.AsyncNamespace):
             print('disconnect')
             study_rooms.leave(self.db, room_id=clients[sid]['room_id'])
             self.leave_room(sid=sid, room=clients[sid]['room_id'], namespace=self.namespace)
+
+            result = self.redis.end_study(clients['user_id'])
+
+            for status in ['sleep', 'smartphone', 'await', 'rest']:
+                self.__create_status__(sid, status, result[status])
 
             my_study = my_studies.update(
                 db = self.db,
@@ -272,3 +288,13 @@ class StudyNamespace(socketio.AsyncNamespace):
                 },
                 namespace = self.namespace
             )
+
+    async def __create_status__(self, sid, type, study_result: dict):
+        statuses.update_or_create(
+            db = self.db,
+            type = type,
+            cnt = study_result['count'],
+            time = study_result['sec'],
+            my_study_id = clients[sid]['my_study_id'],
+            report_id = clients[sid]['report_id']
+        )
