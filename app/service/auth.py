@@ -18,7 +18,7 @@ def parsing_token_decorator(func):
     def wrapper(token: str, **kwargs):
         try:
             return func(token.split(" ")[1], **kwargs)
-        except:
+        except IndexError:
             raise JWTError()
 
     return wrapper
