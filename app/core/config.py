@@ -76,7 +76,7 @@ class TimeSettings(BaseSettings):
     KST = timedelta(hours=9)
 
 class RedisSettings(BaseSettings):
-    HOST = "https://api.studeep.com"
+    HOST = "27.96.131.49"
     PORT = 6000
 
 
