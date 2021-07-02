@@ -85,9 +85,18 @@ class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
             instance = db.query(self.model).filter(
                 self.model.id == id
             ).first()
+
+            statuses = db.query(Statuses).filter(
+                Statuses.report_id == instance.id
+            ).with_entities(
+                func.sum(Statuses.time).filter(not_(
+                    Statuses.type == 'rest'
+                )).label('total_time')
+            ).first()
             
             if instance:
                 instance.total_time += total_time
+                instance.concentration = 100 - int(jsonable_encoder(statuses)['total_time'] / instance.total_time * 100)
                 db.commit()
 
         except:
