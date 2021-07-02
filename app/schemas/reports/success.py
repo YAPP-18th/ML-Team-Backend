@@ -13,22 +13,25 @@ class GetReportReponse(SuccessResponseBase):
                     "total_time": 518,
                     "total_star_count": 0,
                     "total_disturbance_counts": 4,
-                    "disturbances": [
+                    "statuses": [
                         {
-                            "type": "smartphone",
-                            "total_count": 2,
+                            "name": "smartphone",
+                            "value": 2,
                             "total_time": 20
                         },
                         {
-                            "type": "await",
-                            "total_count": 1,
+                            "name": "await",
+                            "value": 1,
                             "total_time": 20
                         },
                         {
-                            "type": "sleep",
-                            "total_count": 1,
+                            "name": "sleep",
+                            "value": 1,
                             "total_time": 5
                         }
+                    ],
+                    "max_status": [
+                        "smartphone"
                     ]
                 }
             }
