@@ -24,9 +24,11 @@ from app.errors       import (
                         )
 from app.core         import time_settings
 
+from app.crud.redis_function         import redis_function
+
 
 MAX_CAPACITY = study_rooms_settings.MAX_CAPACITY
-
+redis_session = redis_function()
 
 def check_password_exist(room_info: Union[StudyRoomsCreate, StudyRoomsUpdate]):
     return False if (not room_info.is_public) and (not room_info.password) else True
@@ -93,8 +95,8 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
             if not check_password_exist(room_info):
                 raise InvalidArgumentException(message='field required')
 
-            room_info.current_join_counts += 1
-            room_info.created_at           = datetime.utcnow() + time_settings.KST
+            # room_info.current_join_counts += 1
+            room_info.created_at = datetime.utcnow() + time_settings.KST
             data = self.model(**jsonable_encoder(room_info))
             db.add(data)
             db.commit()
@@ -142,6 +144,9 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
 
     def join(self, db: Session, room_id: str, room_info: StudyRoomJoin):
         try:
+            if redis_session.check_join(room_info.user_id):
+                raise RequestInvalidException(message='Already Connect a Study-Room')
+                
             data = db.query(self.model).filter(
                 self.model.id == UUID(room_id)
             ).first()
@@ -150,17 +155,21 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
             if study_room:
                 if study_room['current_join_counts'] >= MAX_CAPACITY:
                     raise RequestConflictException(message='no empty')
-            
-                if study_room['is_public']:
-                    if room_info.password:
-                        raise InvalidArgumentException(message='field not required')
-                else:
-                    if not room_info.password:
-                        raise InvalidArgumentException(message='field required')
-                    elif room_info.password != study_room['password']:
-                        raise ForbiddenException(message='forbidden')
 
-                data.current_join_counts += 1
+                if study_room['owner_id'] != room_info.user_id:
+                    if study_room['is_public']:
+                        if room_info.password:
+                            raise InvalidArgumentException(message='field not required')
+                    else:
+                        if not room_info.password:
+                            raise InvalidArgumentException(message='field required')
+                        elif room_info.password != study_room['password']:
+                            raise ForbiddenException(message='forbidden')
+
+                # data.current_join_counts += 1
+
+                print(f"join study-room(id : {room_id}. current count : {data.current_join_counts})")
+
                 db.commit()
 
             else:
@@ -178,12 +187,16 @@ class CRUDStudyRoom(CRUDBase[StudyRooms, StudyRoomsCreate, StudyRoomsUpdate]):
             if not room_id:
                 raise NoSuchElementException(message='not found')
             
-            if self.model.current_join_counts < 1:
+            study_room = db.query(self.model).filter(
+                self.model.id == UUID(room_id)
+            )
+
+            print(study_room.first().current_join_counts)
+
+            if (int(study_room.first().current_join_counts) < 1):
                 raise RequestInvalidException(message='invalid request')
 
-            db.query(self.model).filter(self.model.id == UUID(room_id)).update(
-                {'current_join_counts': self.model.current_join_counts - 1} 
-            )
+            study_room.update({'current_join_counts': self.model.current_join_counts - 1})
             db.commit()
 
         except AttributeError:

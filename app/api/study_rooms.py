@@ -27,13 +27,15 @@ from app.schemas             import (
                                 MethodNotAllowedHandling,
                                 NoEmptyRoomHandling,
                                 ForbiddenUserHandling,
-                                ForbiddenPasswordHandling
+                                ForbiddenPasswordHandling,
+                                AlreadyJoinedHandling
                                 )                                
 from app.errors              import (
                                 get_detail,
                                 NoSuchElementException,
                                 InvalidArgumentException,
                                 RequestConflictException,
+                                RequestInvalidException,
                                 ForbiddenException
                                 )
 
@@ -98,7 +100,6 @@ def get_study_room(room_id: str, db: Session = Depends(get_db)):
             "description": "서버에서 잡지 못한 에러"
         }
     }
-
 )
 def update_study_room(room_id: str, room_info: StudyRoomsUpdate, db: Session = Depends(get_db)):
     try:
@@ -254,6 +255,10 @@ def create_study_room(room_info: StudyRoomsCreate, db: Session = Depends(get_db)
             "model": SuccessResponseBase,
             "description": "스터디룸 생성 성공"
         },
+        400: {
+            "model": AlreadyJoinedHandling,
+            "description": "이미 스터디룸에 접속했는데 접속 시도하는 경우"
+        },
         403: {
             "model": ForbiddenPasswordHandling,
             "description": "비공개 방의 비밀번호 오입력 한 경우"
@@ -281,6 +286,11 @@ def join_study_room(room_id: str, room_info: StudyRoomJoin, db: Session = Depend
     try:
         study_rooms.join(db, room_id, room_info)
         return JSONResponse(status_code=status.HTTP_200_OK, content={'data': ''})
+
+    except RequestInvalidException as invalid_err:
+        message = invalid_err.message
+        detail  = get_detail(param='database', field='user', message=message, err='invalid')
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={'detail': detail})
 
     except ForbiddenException as forbidden_err:
         message = forbidden_err.message
