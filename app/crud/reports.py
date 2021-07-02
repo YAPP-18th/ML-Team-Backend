@@ -43,8 +43,8 @@ class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
                 func.count(Statuses.count).label('value'),
                 func.sum(Statuses.time).label('total_time')
             ).group_by(Statuses.type).all()
-
             report['statuses'] = jsonable_encoder(statuses)
+            report['max_status'] =  [status['name'] for status in report['statuses'] if status['value'] == max(report['statuses'], key=lambda x: x['value'])['value']]
             return [report]
         else:
             raise NoSuchElementException(message='not found')
