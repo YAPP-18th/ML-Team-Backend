@@ -29,9 +29,9 @@ class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
             self.model.concentration,
             self.model.total_time,
             self.model.total_star_count,
-            func.count(Statuses.count).filter(not_(
+            func.sum(Statuses.time).filter(not_(
                 Statuses.type == 'rest'
-            )).label('total_status_counts')
+            )).label('total_status_time')
         ).group_by(self.model.id).first()
 
         if instance:
@@ -40,8 +40,8 @@ class CRUDReport(CRUDBase[Reports, ReportsCreate, ReportsUpdate]):
                 Statuses.report_id == report['id']
             ).with_entities(
                 Statuses.type.label('name'),
-                func.count(Statuses.count).label('value'),
-                func.sum(Statuses.time).label('total_time')
+                func.sum(Statuses.count).label('total_count'),
+                func.sum(Statuses.time).label('value')
             ).group_by(Statuses.type).all()
             report['statuses'] = jsonable_encoder(statuses)
             report['max_status'] =  [status['name'] for status in report['statuses'] if status['value'] == max(report['statuses'], key=lambda x: x['value'])['value']]
