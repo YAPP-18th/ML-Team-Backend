@@ -16,6 +16,19 @@ from app.errors   import NoSuchElementException, RequestInvalidException
 clients = dict()
 
 
+"""
+To Do
+- joinRoom, leaveRoom, status, disconnect 때 방에 입장해 있는 사용자 수를 알려줘야 한다.
+  clients 객체에 접근하여 room_id가 동일한 객체의 수를 세는 방법이 있다.
+  또는 Redis에 저장하는 형태를 아예 바꾸는 방법이 있다.
+  노동과 시간은 후자가 더 많이 들어가지만 효율성이나 속도를 생각했을 때는 더 좋은 것 같다.
+  전자, 후자 모두 효율적으로 코드를 만들 방법을 고려 할 필요가 있다.
+- 오류가 발생했을 때 자동으로 disconnect 되게 하는 게 좋을 것 같다.
+  오류가 발생한 상황은 다시 말하면 허용되지 않은 방법으로 소켓에 접근하는 것이기도 하다.
+  response 이벤트로 이를 알려주기 보다는 바로 연결을 해제 시켜버리는 게 더 좋을 것 같다. 
+"""
+
+
 class StudyNamespace(socketio.AsyncNamespace):
     def __init__(self, sio, namespace, *args, **kwargs):
         super(socketio.Namespace, self).__init__(namespace)
@@ -85,6 +98,7 @@ class StudyNamespace(socketio.AsyncNamespace):
             # redis set study room
             self.redis.set_study_room(user_id = clients[sid]['user_id'], study_room_id = room_id)
             
+            # 사용자 수를 알려줄 방법에 대해서 생각해봐야 한다.
             await self.emit(
                 'response',
                 {
@@ -143,6 +157,7 @@ class StudyNamespace(socketio.AsyncNamespace):
             """
             print('leave room')
             
+            # 사용자 수를 알려줄 방법에 대해서 생각해봐야 한다.
             await self.emit(
                 'disconnect',
                 {
@@ -209,13 +224,16 @@ class StudyNamespace(socketio.AsyncNamespace):
             self.redis.add_current_log(clients[sid]['user_id'], status, time.time())
 
 
+            # 사용자 수를 알려줄 방법에 대해서 생각해봐야 한다.            
             await self.emit(
                 'response',
                 {
                     'statusCode': 200,
                     'message': 'SUCCESS',
                     'eventName': 'status',
-                    'data': status
+                    'data': {
+                        'status': status
+                    }
                 },
                 room = clients[sid]['room_id'],
                 namespace = self.namespace
@@ -268,8 +286,20 @@ class StudyNamespace(socketio.AsyncNamespace):
             print(f'sid: {sid}, clients: {clients}')
             print('disconnect success')
 
+            # 사용자 수를 알려줄 방법에 대해서 생각해봐야 한다.
+            await self.emit(
+                'response',
+                {
+                    'statusCode': 200,
+                    'message': 'SUCCESS',
+                    'eventName': 'disconnect',
+                    'data': {}
+                }
+            )
+
         except NoSuchElementException:
             # 입장 전에 공부방을 종료하는 경우
+            # 사용자 수를 알려줄 방법에 대해서 생각해봐야 한다.
             await self.emit(
                 'response',
                 {
