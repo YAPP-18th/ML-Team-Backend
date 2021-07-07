@@ -1,28 +1,38 @@
-from typing import Dict, Generator
+from typing               import Dict
 
-import pytest
-
-from fastapi.testclient import TestClient
+from fastapi.testclient   import TestClient
 
 from app.database.session import SessionLocal
-from app.main import app
+from app.database.base    import Base
+from app.api.deps         import get_db
+from app.main             import app
 
 
-@pytest.fixture(scope="session")
-def db() -> Generator:
-    yield SessionLocal()
+
+Base.metadata
+
+def overried_get_db():
+    try:
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()
 
 
-@pytest.fixture(scope="module")
-def client() -> Generator:
-    with TestClient(app) as c:
-        yield c
+def client():
+    with TestClient(app) as client:
+        yield client
 
 
-@pytest.fixture(scope="module")
-def random_product() -> Dict[str, str]:
+app.dependency_overrides[get_db] = overried_get_db
+
+
+def test_user() -> Dict[str, str]:
     return {
         "id": 1,
-        "name": "Test Product",
-        "price": 80,
+        "provider": "Google",
+        "email": "test@test.com",
+        "nickname": "test"
     }
+
+client = TestClient(app)
