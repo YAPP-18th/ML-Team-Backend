@@ -3,6 +3,7 @@ import traceback
 import time
 
 from app.crud    import (
+                    users,
                     study_rooms,
                     reports,
                     my_studies,
@@ -36,23 +37,34 @@ class StudyNamespace(socketio.AsyncNamespace):
         self.db      = SessionLocal()
         self.redis   = redis_function()
 
+    async def get_users(self, room_id):
+        users = [
+            value for value in clients.values() if value['room_id'] == room_id
+        ]
+        return users
 
     async def on_connect(self, sid, environ, auth):
         try:
             print('connect')
-            instance = reports.get_or_create(
+            user_instance = users.get(
+                db = self.db,
+                user_id = auth['user_id']
+            )
+            report_instance = reports.get_or_create(
                 db      = self.db,
                 user_id = auth['user_id']
             )
             clients[sid] = {
                 'user_id': auth['user_id'],
+                'user_nickname': user_instance['nickname'],
+                'status': 'study',
                 'room_id': '',
-                'report_id':  instance['id'],
+                'report_id':  report_instance['id'],
                 'my_study_id': '',
             }
             
             # redis init
-            self.redis.start_study_init(user_id = clients[sid]['user_id'])
+            self.redis.start_study_init(user_id = auth['user_id'])
 
             await self.emit(
                 'response',
@@ -99,15 +111,15 @@ class StudyNamespace(socketio.AsyncNamespace):
             self.redis.set_study_room(user_id = clients[sid]['user_id'], study_room_id = room_id)
             
             # 사용자 수를 알려줄 방법에 대해서 생각해봐야 한다.
+            users = await self.get_users(room_id = room_id)
+
             await self.emit(
                 'response',
                 {
                     'statusCode': 200,
                     'message': 'SUCCESS',
                     'eventName': 'joinRoom',
-                    'data': {
-                        'my_study_id' : instance['id']
-                    }
+                    'data': users
                 },
                 room      = room_id,
                 namespace = self.namespace
@@ -222,7 +234,8 @@ class StudyNamespace(socketio.AsyncNamespace):
             """
 
             self.redis.add_current_log(clients[sid]['user_id'], status, time.time())
-
+            clients[sid]['status'] = status
+            users = await self.get_users(room_id = clients[sid]['room_id'])
 
             # 사용자 수를 알려줄 방법에 대해서 생각해봐야 한다.            
             await self.emit(
@@ -231,9 +244,7 @@ class StudyNamespace(socketio.AsyncNamespace):
                     'statusCode': 200,
                     'message': 'SUCCESS',
                     'eventName': 'status',
-                    'data': {
-                        'status': status
-                    }
+                    'data': users
                 },
                 room = clients[sid]['room_id'],
                 namespace = self.namespace
@@ -281,10 +292,11 @@ class StudyNamespace(socketio.AsyncNamespace):
                     id         = clients[sid]['report_id'],
                     total_time = my_study['total_time']
                 )
-            
+            room_id = clients[sid]['room_id']
             clients.pop(sid)
             print(f'sid: {sid}, clients: {clients}')
             print('disconnect success')
+            users = await self.get_users(room_id = room_id)
 
             # 사용자 수를 알려줄 방법에 대해서 생각해봐야 한다.
             await self.emit(
@@ -293,7 +305,7 @@ class StudyNamespace(socketio.AsyncNamespace):
                     'statusCode': 200,
                     'message': 'SUCCESS',
                     'eventName': 'disconnect',
-                    'data': {}
+                    'data': users
                 }
             )
 
