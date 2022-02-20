@@ -1,0 +1,41 @@
+version: "3"
+services:
+  db:
+    image: postgres:latest
+    container_name: postgres_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - ~/WorkSpace/postgres/yapp/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=1234
+    privileged: true
+
+#  pgadmin db연결 시, 포워딩한 포트가 아닌 원래포트 사용해야 함
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - "5434:80"
+    volumes:
+      - ~/WorkSpace/pgadmin/yapp/data:/var/lib/pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=yappml@pgadmin.com
+      - PGADMIN_DEFAULT_PASSWORD=1234
+    privileged: true
+
+  redis:
+    image: redis:latest
+    container_name: redis_db
+    ports:
+      - "6000:6379"
+    volumes:
+      - ./config/redis:/usr/local/etc/redis
+      - ~/WorkSpace/redis/yapp/data:/data
+    environment:
+      - TZ=Asia/Seoul
+    command: redis-server /usr/local/etc/redis/redis.conf
+    restart: always
+    privileged: true
+
